@@ -78,41 +78,47 @@
             // هنا يمكنك إضافة منطق لتغيير لون الأيقونة النشطة
         }
 
-       // استبدل هذا الرقم بالرقم الذي ستحصل عليه من موقع Adsgram
-const MY_BLOCK_ID = "23028"; 
+ const MY_BLOCK_ID = "23028"; 
 
 function showAd() {
-    const AdController = window.Adsgram.init({ blockId: 23028 });
+    const AdController = window.Adsgram.init({ blockId: MY_BLOCK_ID });
 
     AdController.show().then((result) => {
-        // إذا شاهد المستخدم الإعلان كاملاً بنجاح
         if (result.done) {
-            alert("مبروك! لقد ربحت المكافأة.");
-            
-            // هنا نرسل البيانات لقاعدة البيانات الخاصة بك (Aiven)
+            alert("مبروك! لقد شاهدت الإعلان بنجاح.");
             saveRewardToDatabase(); 
         } else {
-            // إذا أغلق المستخدم الإعلان قبل النهاية
             alert("يجب مشاهدة الإعلان كاملاً للحصول على الجائزة.");
         }
     }).catch((result) => {
-        // في حال حدوث خطأ (مثلاً لا يوجد إعلانات متوفرة حالياً)
         console.error(result);
-        alert("نعتذر، لا توجد إعلانات متوفرة حالياً. حاول لاحقاً.");
+        alert("نعتذر، لا توجد إعلانات متوفرة حالياً.");
     });
 }
 
 function saveRewardToDatabase() {
-    // هنا نرسل طلب (Fetch) للسيرفر الخاص بك ليحدث الرصيد في MySQL
-    // مثال بسيط:
-    /*
-    fetch('/api/add-balance', {
-        method: 'POST',
-        body: JSON.stringify({ userId: window.Telegram.WebApp.initDataUnsafe.user.id })
+    // جلب معرف المستخدم من بيانات تيليجرام
+    const userId = window.Telegram.WebApp.initDataUnsafe.user.id;
+    
+    // إرسال طلب المكافأة إلى سيرفر Render الخاص بك
+    // تأكد من أن الرابط هو رابط تطبيقك على Render
+    fetch(`https://botserv.onrender.com/ad-reward?user_id=${userId}`)
+    .then(response => response.json())
+    .then(data => {
+        if(data.status === "ok") {
+            alert("تم إضافة 0.002 USDT إلى رصيدك!");
+            // هنا يمكنك تحديث واجهة المستخدم بالرصيد الجديد إذا أردت
+        } else {
+            alert("فشل إضافة المكافأة: " + data.message);
+        }
+    })
+    .catch(err => {
+        console.error("Fetch error:", err);
+        alert("خطأ في الاتصال بالسيرفر.");
     });
-    */
 }
     </script>
 </body>
 
 </html>
+
