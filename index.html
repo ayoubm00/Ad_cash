@@ -1,129 +1,67 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AD Cash</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-    </style>
+    <title>ADCash - Earn</title>
     <script src="https://adsgram.ai/sdk/v1/adsgram-sdk.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        body { font-family: sans-serif; text-align: center; background-color: #0088cc; color: white; padding-top: 50px; }
+        .btn { background-color: white; color: #0088cc; border: none; padding: 15px 30px; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold; }
+    </style>
 </head>
-<body class="p-4">
+<body>
 
-    <div class="glass rounded-2xl p-5 mb-6 text-center shadow-xl">
-        <p class="text-gray-400 text-sm mb-1">رصيدك الحالي</p>
-        <h1 class="text-4xl font-bold text-yellow-400">0.000 <span class="text-lg text-white">USDT</span></h1>
-    </div>
-
-    <div id="dashboard" class="tab-content active animate-fade-in">
-        <div class="space-y-4">
-            <div class="glass p-4 rounded-xl flex justify-between items-center border-r-4 border-yellow-500">
-                <div>
-                    <h3 class="font-bold">مشاهدة فيديو مكافئ</h3>
-                    <p class="text-xs text-gray-400">اربح +0.002 TON لكل فيديو</p>
-                </div>
-                <button onclick="showAd()" class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded-lg text-sm transition-all shadow-lg active:scale-95">
-                    <i class="fas fa-play ml-1"></i> مشاهدة
-                </button>
-            </div>
-
-            <div class="glass p-4 rounded-xl flex justify-between items-center border-r-4 border-blue-500">
-                <div>
-                    <h3 class="font-bold">الاشتراك في القناة</h3>
-                    <p class="text-xs text-gray-400">تابعنا للحصول على مكافأة</p>
-                </div>
-                <a href="https://t.me/ad_cash00" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all shadow-lg">
-                    انضمام
-                </a>
-            </div>
-            
-            <p class="text-center text-xs text-gray-500 mt-4">إعلانات اليوم: <span class="text-white font-bold">0 / 10</span></p>
-        </div>
-    </div>
-
-    <div id="about" class="tab-content animate-fade-in text-center">
-        <div class="glass p-6 rounded-2xl">
-            <i class="fas fa-info-circle text-4xl text-blue-400 mb-4"></i>
-            <h2 class="text-xl font-bold mb-2">حول النظام</h2>
-            <p class="text-gray-400 text-sm leading-relaxed">
-                هذا البوت يمنحك فرصة لربح العملات الرقمية مقابل وقتك. نحن نستخدم تقنية Adsgram لتقديم أفضل الإعلانات. السحب متاح بمجرد وصولك للحد الأدنى.
-            </p>
-        </div>
-    </div>
-
-    <div class="fixed bottom-4 left-4 right-4 glass rounded-2xl flex justify-around p-3 shadow-2xl">
-        <button onclick="showTab('dashboard')" class="flex flex-col items-center text-yellow-500">
-            <i class="fas fa-home text-xl"></i>
-            <span class="text-[10px] mt-1">الرئيسية</span>
-        </button>
-        <button onclick="showTab('about')" class="flex flex-col items-center text-gray-400 hover:text-white">
-            <i class="fas fa-question-circle text-xl"></i>
-            <span class="text-[10px] mt-1">حول</span>
-        </button>
-    </div>
+    <h1>مرحباً بك في ADCash</h1>
+    <p>شاهد الإعلان للحصول على مكافأة</p>
+    
+    <button class="btn" onclick="showAd()">📺 مشاهدة الإعلان</button>
 
     <script>
-        // وظيفة تبديل الصفحات
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            
-            // تغيير ألوان الأيقونات (تبسيط)
-            const btns = document.querySelectorAll('button');
-            // هنا يمكنك إضافة منطق لتغيير لون الأيقونة النشطة
+        // تأكد من تغيير الرقم أدناه إلى رقم الـ ID الجديد الخاص بك
+        const MY_BLOCK_ID = "23028"; 
+
+        function showAd() {
+            // التحقق من تحميل المكتبة
+            if (!window.Adsgram) {
+                alert("خطأ: محرك الإعلانات لم يتم تحميله بعد. تأكد من اتصال الإنترنت.");
+                return;
+            }
+
+            const AdController = window.Adsgram.init({ blockId: MY_BLOCK_ID });
+
+            AdController.show().then((result) => {
+                // إذا اكتمل الإعلان بنجاح
+                if (result.done) {
+                    alert("تمت المشاهدة! جاري إرسال المكافأة...");
+                    saveRewardToDatabase();
+                }
+            }).catch((result) => {
+                // إظهار سبب الخطأ (مثل In Moderation)
+                alert("Adsgram Status: " + result.description);
+                console.log("Error details:", result);
+            });
         }
 
- const MY_BLOCK_ID = "23028"; 
+        function saveRewardToDatabase() {
+            const tg = window.Telegram.WebApp;
+            const userId = tg.initDataUnsafe?.user?.id;
 
-function showAd() {
-    const AdController = window.Adsgram.init({ blockId: MY_BLOCK_ID });
+            if (!userId) {
+                alert("خطأ: لم نتمكن من العثور على User ID الخاص بك.");
+                return;
+            }
 
-    AdController.show().then((result) => {
-        if (result.done) {
-            alert("مبروك! لقد شاهدت الإعلان بنجاح.");
-            saveRewardToDatabase(); 
-        } else {
-            alert("يجب مشاهدة الإعلان كاملاً للحصول على الجائزة.");
+            // إرسال الطلب للسيرفر الخاص بك على Render
+            fetch(`https://botserv.onrender.com/ad-reward?user_id=${userId}`)
+                .then(response => {
+                    if (response.ok) alert("مبروك! تم إضافة الرصيد بنجاح.");
+                    else alert("حدث خطأ في السيرفر أثناء إضافة الرصيد.");
+                })
+                .catch(err => alert("خطأ في الاتصال بالسيرفر: " + err));
         }
-    }).catch((result) => {
-        console.error(result);
-        alert("نعتذر، لا توجد إعلانات متوفرة حالياً.");
-    });
-}
-
-function saveRewardToDatabase() {
-    // جلب معرف المستخدم من بيانات تيليجرام
-    const userId = window.Telegram.WebApp.initDataUnsafe.user.id;
-    
-    // إرسال طلب المكافأة إلى سيرفر Render الخاص بك
-    // تأكد من أن الرابط هو رابط تطبيقك على Render
-    fetch(`https://botserv.onrender.com/ad-reward?user_id=${userId}`)
-    .then(response => response.json())
-    .then(data => {
-        if(data.status === "ok") {
-            alert("تم إضافة 0.002 USDT إلى رصيدك!");
-            // هنا يمكنك تحديث واجهة المستخدم بالرصيد الجديد إذا أردت
-        } else {
-            alert("فشل إضافة المكافأة: " + data.message);
-        }
-    })
-    .catch(err => {
-        console.error("Fetch error:", err);
-        alert("خطأ في الاتصال بالسيرفر.");
-    });
-}
     </script>
 </body>
-
 </html>
-
-
-
-
