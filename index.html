@@ -1,66 +1,81 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADCash - Earn</title>
+    <title>ADCash Earn</title>
+    
     <script src="https://adsgram.ai/sdk/v1/adsgram-sdk.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
+
     <style>
-        body { font-family: sans-serif; text-align: center; background-color: #0088cc; color: white; padding-top: 50px; }
-        .btn { background-color: white; color: #0088cc; border: none; padding: 15px 30px; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold; }
+        body { font-family: Arial, sans-serif; text-align: center; background: #1a1a1a; color: white; padding: 50px 20px; }
+        .btn { background: #0088cc; color: white; border: none; padding: 20px; border-radius: 15px; font-size: 20px; width: 80%; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        .btn:disabled { background: #555; cursor: not-allowed; }
+        #status { color: #aaa; margin-top: 10px; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <h1>مرحباً بك في ADCash</h1>
-    <p>شاهد الإعلان للحصول على مكافأة</p>
-    
-    <button class="btn" onclick="showAd()">📺 مشاهدة الإعلان</button>
+    <h2>مرحباً بك في ADCash 💰</h2>
+    <p>اضغط لمشاهدة الإعلان والحصول على مكافأة</p>
+
+    <button id="adBtn" class="btn" onclick="showAd()">📺 مشاهدة الإعلان الآن</button>
+    <p id="status">جاري التحقق من اتصال الإعلانات...</p>
 
     <script>
-        // تأكد من تغيير الرقم أدناه إلى رقم الـ ID الجديد الخاص بك
+        // 2. ضع الـ ID الجديد الخاص بك هنا
         const MY_BLOCK_ID = "23028"; 
 
+        // التأكد من تحميل المكتبة عند فتح الصفحة
+        window.onload = function() {
+            const statusText = document.getElementById('status');
+            if (window.Adsgram) {
+                statusText.innerText = "متصل وساهز للعمل ✅";
+                statusText.style.color = "#4CAF50";
+            } else {
+                statusText.innerText = "فشل تحميل المحرك ❌ (تأكد من إغلاق AdBlock)";
+                statusText.style.color = "#f44336";
+            }
+        };
+
         function showAd() {
-            // التحقق من تحميل المكتبة
+            const btn = document.getElementById('adBtn');
+            
             if (!window.Adsgram) {
-                alert("خطأ: محرك الإعلانات لم يتم تحميله بعد. تأكد من اتصال الإنترنت.");
+                alert("المحرك لم يتم تحميله. حاول إغلاق التطبيق وفتحه مجدداً.");
                 return;
             }
+
+            btn.disabled = true;
+            btn.innerText = "جاري التحميل...";
 
             const AdController = window.Adsgram.init({ blockId: MY_BLOCK_ID });
 
             AdController.show().then((result) => {
-                // إذا اكتمل الإعلان بنجاح
                 if (result.done) {
-                    alert("تمت المشاهدة! جاري إرسال المكافأة...");
-                    saveRewardToDatabase();
+                    saveReward();
                 }
-            }).catch((result) => {
-                // إظهار سبب الخطأ (مثل In Moderation)
-                alert("Adsgram Status: " + result.description);
-                console.log("Error details:", result);
+                btn.disabled = false;
+                btn.innerText = "📺 مشاهدة الإعلان الآن";
+            }).catch((err) => {
+                // هنا سيظهر لك سبب المشكلة الحقيقي (Moderation أو غيره)
+                alert("تنبيه من Adsgram: " + err.description);
+                btn.disabled = false;
+                btn.innerText = "📺 مشاهدة الإعلان الآن";
             });
         }
 
-        function saveRewardToDatabase() {
-            const tg = window.Telegram.WebApp;
-            const userId = tg.initDataUnsafe?.user?.id;
-
+        function saveReward() {
+            const userId = window.Telegram.WebApp.initDataUnsafe?.user?.id;
             if (!userId) {
-                alert("خطأ: لم نتمكن من العثور على User ID الخاص بك.");
+                alert("لم نجد معرف المستخدم الخاص بك!");
                 return;
             }
 
-            // إرسال الطلب للسيرفر الخاص بك على Render
             fetch(`https://botserv.onrender.com/ad-reward?user_id=${userId}`)
-                .then(response => {
-                    if (response.ok) alert("مبروك! تم إضافة الرصيد بنجاح.");
-                    else alert("حدث خطأ في السيرفر أثناء إضافة الرصيد.");
-                })
-                .catch(err => alert("خطأ في الاتصال بالسيرفر: " + err));
+                .then(r => alert("مبروك! تم إضافة الرصيد 💵"))
+                .catch(e => alert("خطأ في الاتصال بالسيرفر"));
         }
     </script>
 </body>
