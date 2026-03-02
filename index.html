@@ -1,223 +1,977 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADCash - USDT Rewards</title>
-    <script src='//libtl.com/sdk.js' data-zone='10673309' data-sdk='show_10673309'></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
-
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AD Cash - Earn Money</title>
     <style>
-        :root { --primary: #00ff88; --bg: #0b0f1a; --card: #161b2c; --text: #ffffff; }
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); margin: 0; user-select: none; overflow-x: hidden; }
-        .page { display: none; padding: 20px; padding-bottom: 100px; animation: fadeIn 0.3s ease; }
-        .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        .card { background: var(--card); border-radius: 20px; padding: 25px; margin-bottom: 20px; text-align: center; border: 1px solid #232a3d; box-shadow: 0 10px 15px rgba(0,0,0,0.3); }
-        .balance { font-size: 38px; color: var(--primary); font-weight: bold; text-shadow: 0 0 10px rgba(0,255,136,0.2); }
-        
-        .nav { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; border-top: 1px solid #232a3d; padding: 12px 0; z-index: 1000; }
-        .nav-item { flex: 1; text-align: center; font-size: 11px; opacity: 0.5; cursor: pointer; transition: 0.3s; }
-        .nav-item.active { opacity: 1; color: var(--primary); font-weight: bold; }
-        
-        .main-btn { background: var(--primary); color: #000; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
-        .main-btn:active { transform: scale(0.98); }
-        .main-btn:disabled { background: #333; color: #777; cursor: not-allowed; }
-
-        .progress-container { background: #0b0f1a; height: 10px; border-radius: 10px; margin: 20px 0; overflow: hidden; }
-        .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: width 1s linear; border-radius: 10px; }
-        
-        input { width: 100%; padding: 14px; background: #0b0f1a; border: 1px solid #232a3d; color: #fff; border-radius: 10px; margin: 10px 0; text-align: center; font-size: 14px; box-sizing: border-box; }
-        
-        #sub-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
-        .ad-counter { font-size: 14px; color: #8892b0; margin-bottom: 15px; }
-    </style>
-</head>
-<body>
-
-    <div id="sub-overlay">
-        <h2 style="color: var(--primary);">خطوة واحدة للبدء! 🚀</h2>
-        <p>يجب الاشتراك في قناة المشروع الرسمية لتفعيل حسابك وسحب أرباحك.</p>
-        <a href="https://t.me/ADCash00" target="_blank" style="background:#24a1de; color:#fff; text-decoration:none; padding:15px; border-radius:12px; width:85%; margin-bottom:15px; display:block; font-weight:bold;">قناة ADCash (انضم هنا)</a>
-        <button onclick="checkSubscription()" class="main-btn" style="width:85%;">تحقق من الاشتراك ✅</button>
-    </div>
-
-    <div id="home" class="page">
-        <h3>لوحة التحكم</h3>
-        <div class="card">
-            <p style="color: #8892b0; margin-bottom: 5px;">رصيدك المتوفر (USDT)</p>
-            <div class="balance" id="balance">0.000</div>
-        </div>
-        <div class="card">
-            <div class="ad-counter">المهام المكتملة اليوم: <b id="daily-tasks" style="color:#fff;">0</b> / 10</div>
-            <button class="main-btn" onclick="showPage('ads')">كسب USDT الآن 📺</button>
-        </div>
-    </div>
-
-    <div id="ads" class="page">
-        <h3>مركز الإعلانات</h3>
-        <div class="card">
-            <h4 id="ad-step-text">دورة المشاهدة: 1 / 3</h4>
-            <p style="font-size: 13px; color: #8892b0;">شاهد الإعلان بالكامل للحصول على المكافأة.</p>
-            
-            <button class="main-btn" id="open-ad-btn" onclick="openAndStartAd()">فتح إعلان مكافأة 📺</button>
-            
-            <div class="progress-container">
-                <div id="bar" class="progress-bar"></div>
-            </div>
-            
-            <button class="main-btn" id="claim-btn" style="display:none;" onclick="nextAd()">تخطي الإعلان (X)</button>
-        </div>
-    </div>
-
-    <div id="refs" class="page">
-        <h3>نظام الإحالة</h3>
-        <div class="card">
-            <p style="font-size: 14px;">اربح <b>0.01 USDT</b> عن كل صديق يدخل للبوت عبر رابطك!</p>
-            <input type="text" id="ref-url" readonly>
-            <button class="main-btn" onclick="copyLink()">نسخ رابط الإحالة 🔗</button>
-        </div>
-        <div class="card">
-            <p>إجمالي أصدقائك: <b id="r-total" style="color:var(--primary);">0</b></p>
-        </div>
-    </div>
-
-    <div id="withdraw" class="page">
-        <h3>سحب الأرباح</h3>
-        <div class="card">
-            <p>الحد الأدنى للسحب: <b style="color:var(--primary);">0.10 USDT</b></p>
-            <input type="text" id="wallet-address" placeholder="عنوان محفظة USDT (TRC20)">
-            <button class="main-btn" onclick="tg.showAlert('سيتم مراجعة طلبك وإرسال الرصيد خلال 24 ساعة عند الوصول للحد الأدنى!')">طلب سحب 💸</button>
-            <p style="font-size: 11px; color: #8892b0; margin-top: 15px;">* تأكد من العنوان، العملات الرقمية لا يمكن استردادها.</p>
-        </div>
-    </div>
-
-    <div class="nav">
-        <div class="nav-item active" onclick="showPage('home')">🏠<br>الرئيسية</div>
-        <div class="nav-item" onclick="showPage('ads')">📺<br>الإعلانات</div>
-        <div class="nav-item" onclick="showPage('refs')">👥<br>الإحالات</div>
-        <div class="nav-item" onclick="showPage('withdraw')">💰<br>السحب</div>
-    </div>
-
-    <script>
-        const API_URL = "https://botserv.onrender.com"; // رابط سيرفر Render الخاص بك
-        const tg = window.Telegram.WebApp;
-        const uid = tg.initDataUnsafe?.user?.id || "123456789";
-        const botUsername = "ADCash_dzbot"; // معرف البوت بدون @
-        let adStep = 1;
-
-        // 1. التحقق من الاشتراك
-        async function checkSubscription() {
-            try {
-                const res = await fetch(`${API_URL}/check-sub?user_id=${uid}`);
-                const data = await res.json();
-                if(data.is_member) {
-                    document.getElementById('sub-overlay').style.display = 'none';
-                    showPage('home');
-                    loadData();
-                } else {
-                    tg.showAlert("❌ لم نجدك في القناة، يرجى الاشتراك أولاً!");
-                }
-            } catch(e) { tg.showAlert("⚠️ عذراً، السيرفر لا يستجيب حالياً."); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
         }
 
-        // 2. تحميل بيانات المستخدم
-        async function loadData() {
-            try {
-                const res = await fetch(`${API_URL}/get-user-data?user_id=${uid}`);
-                const data = await res.json();
-                document.getElementById('balance').innerText = `${data.balance.toFixed(3)}`;
-                document.getElementById('daily-tasks').innerText = data.tasks % 10;
-                document.getElementById('r-total').innerText = data.refs_total;
-                document.getElementById('ref-url').value = `https://t.me/${botUsername}?start=${uid}`;
-            } catch(e) { console.error("Error loading data:", e); }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        // 3. التنقل بين الصفحات
-        function showPage(id) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            
-            // تحديد العنصر النشط في القائمة
-            const indexMap = {'home':0, 'ads':1, 'refs':2, 'withdraw':3};
-            document.querySelectorAll('.nav-item')[indexMap[id]].classList.add('active');
-            
-            resetAdUI();
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin: 20px;
         }
 
-        // 4. تشغيل إعلان مونيتاج
-     function openAndStartAd() {
-    show_10673309().then(() => {
-        document.getElementById('open-ad-btn').style.display = 'none';
-        startProgress();
-    }).catch((e) => {
-        // سيظهر لك هنا نص الخطأ الحقيقي
-        console.error(e);
-        tg.showAlert("عذراً، لا يوجد إعلان متاح حالياً. حاول مجدداً بعد قليل.");
-    });
-}
-
-        // 5. عداد المكافأة
-        function startProgress() {
-            let w = 0;
-            const bar = document.getElementById('bar');
-            const claimBtn = document.getElementById('claim-btn');
-            document.getElementById('ad-step-text').innerText = `دورة المشاهدة: ${adStep} / 3`;
-            
-            const timer = setInterval(() => {
-                w += 10; // 10 ثوانٍ (لأن المستخدم شاهد إعلان مونيتاج بالفعل)
-                bar.style.width = w + '%';
-                if(w >= 100) { 
-                    clearInterval(timer); 
-                    claimBtn.style.display = 'block'; 
-                }
-            }, 1000);
+        .screen {
+            display: none;
+            padding: 20px;
         }
 
-        // 6. الانتقال للإعلان التالي أو استلام المكافأة
-        async function nextAd() {
-            if(adStep < 3) {
-                adStep++; 
-                resetAdUI();
-                tg.showAlert(`أحسنت! بقيت ${4-adStep} دورات.`);
-            } else {
-                try {
-                    await fetch(`${API_URL}/add-reward`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({user_id: uid})
-                    });
-                    tg.showAlert("✅ مبروك! حصلت على المكافأة بنجاح.");
-                    adStep = 1; 
-                    loadData(); 
-                    showPage('home');
-                } catch(e) { tg.showAlert("⚠️ فشل في إرسال المكافأة."); }
+        .screen.active {
+            display: block;
+        }
+
+        /* شاشة التحقق */
+        .warning-icon {
+            font-size: 64px;
+            text-align: center;
+            margin: 30px 0 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        /* الهيدر */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: -20px -20px 20px;
+            padding: 20px;
+            color: white;
+            border-radius: 0 0 30px 30px;
+        }
+
+        .user-info {
+            margin-bottom: 15px;
+        }
+
+        #username {
+            font-size: 20px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .user-id {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .balance-box {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .balance-label {
+            font-size: 14px;
+        }
+
+        .balance-amount {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* الإحصائيات */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* شريط التنقل */
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #999;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* الإعلانات */
+        .ads-progress {
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        #adsCounter {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .ads-grid {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .ad-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .ad-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .ad-card.completed {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .ad-icon {
+            font-size: 24px;
+        }
+
+        .ad-info {
+            flex: 1;
+        }
+
+        .ad-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .ad-reward {
+            font-size: 12px;
+            color: #4CAF50;
+        }
+
+        .ad-play-btn {
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .info-message {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        /* الإحالات */
+        .referral-link-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .referral-link-box input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .copy-btn {
+            padding: 12px 20px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .referral-stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .referrals-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .referral-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .referral-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .referral-status {
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* السحب */
+        .withdraw-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .withdraw-form {
+            margin-bottom: 20px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .withdrawals-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .withdrawal-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .withdrawal-amount {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .withdrawal-status {
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .withdrawal-date {
+            font-size: 10px;
+            color: #999;
+        }
+
+        /* رسائل التنبيه */
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            animation: slideIn 0.3s;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
             }
         }
 
-        function resetAdUI() {
-            document.getElementById('bar').style.width = '0%';
-            document.getElementById('claim-btn').style.display = 'none';
-            document.getElementById('open-ad-btn').style.display = 'block';
+        /* تحميل */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
 
-        function copyLink() {
-            const inp = document.getElementById('ref-url');
-            inp.select();
-            document.execCommand('copy');
-            tg.showAlert("✅ تم نسخ رابط الإحالة بنجاح!");
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
         }
 
-        // تهيئة التطبيق
-        tg.ready();
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- شاشة التحقق من الاشتراك -->
+        <div id="subscription-check" class="screen active">
+            <div class="warning-icon">🔒</div>
+            <h2>Channel Subscription Required</h2>
+            <p>Please join our official channel to start earning!</p>
+            <a href="https://t.me/ADCash_Official" class="btn btn-primary" target="_blank">Join Channel</a>
+            <button class="btn btn-secondary" onclick="checkSubscription()">I've Joined ✓</button>
+        </div>
+
+        <!-- الواجهة الرئيسية -->
+        <div id="main-screen" class="screen">
+            <!-- الهيدر -->
+            <div class="header">
+                <div class="user-info">
+                    <span id="username">Loading...</span>
+                    <span class="user-id" id="userId">ID: </span>
+                </div>
+                <div class="balance-box">
+                    <span class="balance-label">Balance</span>
+                    <span class="balance-amount" id="balance">$0.00</span>
+                </div>
+            </div>
+
+            <!-- الإحصائيات السريعة -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-value" id="referralCount">0</span>
+                    <span class="stat-label">Referrals</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="adsWatched">0/10</span>
+                    <span class="stat-label">Ads Today</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="totalEarned">$0.00</span>
+                    <span class="stat-label">Total Earned</span>
+                </div>
+            </div>
+
+            <!-- شريط التنقل -->
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="showTab('ads')">📺 Ads</button>
+                <button class="tab-btn" onclick="showTab('referrals')">👥 Referrals</button>
+                <button class="tab-btn" onclick="showTab('withdraw')">💸 Withdraw</button>
+            </div>
+
+            <!-- محتوى التبويبات -->
+            <div id="ads-tab" class="tab-content active">
+                <h3>Available Ads</h3>
+                <div class="ads-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="adProgress" style="width: 0%"></div>
+                    </div>
+                    <span id="adsCounter">0/10 ads completed</span>
+                </div>
+                
+                <div class="ads-grid" id="adsGrid">
+                    <!-- سيتم توليد الإعلانات هنا -->
+                </div>
+
+                <div class="info-message" id="cooldownMessage" style="display: none;">
+                    ⏰ You've completed today's ads! Come back in 24 hours.
+                </div>
+            </div>
+
+            <div id="referrals-tab" class="tab-content">
+                <h3>Your Referral Link</h3>
+                <div class="referral-link-box">
+                    <input type="text" id="referralLink" readonly>
+                    <button class="copy-btn" onclick="copyReferralLink()">📋 Copy</button>
+                </div>
+                
+                <div class="referral-stats">
+                    <div class="stat-row">
+                        <span>Total Referrals:</span>
+                        <strong id="totalReferrals">0</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Earned from referrals:</span>
+                        <strong id="referralEarnings">$0.00</strong>
+                    </div>
+                </div>
+
+                <h4>Your Referrals</h4>
+                <div class="referrals-list" id="referralsList">
+                    <p class="info-message">Loading referrals...</p>
+                </div>
+            </div>
+
+            <div id="withdraw-tab" class="tab-content">
+                <h3>Withdraw Funds</h3>
+                
+                <div class="withdraw-info">
+                    <p>Minimum withdrawal: <strong>$0.50</strong></p>
+                    <p>Available balance: <strong id="availableBalance">$0.00</strong></p>
+                </div>
+
+                <div class="withdraw-form">
+                    <input type="text" id="binanceId" placeholder="Enter your Binance ID" class="form-input">
+                    <input type="number" id="withdrawAmount" placeholder="Amount in $" min="0.5" step="0.01" class="form-input">
+                    <button class="btn btn-primary" onclick="requestWithdrawal()">Request Withdrawal</button>
+                </div>
+
+                <h4>Withdrawal History</h4>
+                <div class="withdrawals-list" id="withdrawalsList">
+                    <p class="info-message">Loading withdrawals...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- طبقة التحميل -->
+    <div id="loading" class="loading" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <script>
+        // ==================== تهيئة Telegram WebApp ====================
+        const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.enableClosingConfirmation();
+        
+        // ==================== المتغيرات العامة ====================
+        let userData = null;
+        let currentTab = 'ads';
+        
+        // ==================== الدوال الرئيسية ====================
+        
+        // التحقق من الاشتراك
+        function checkSubscription() {
+            document.getElementById('subscription-check').classList.remove('active');
+            document.getElementById('main-screen').classList.add('active');
+            loadUserData();
+        }
+        
+        // إظهار التحميل
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+        
+        // إخفاء التحميل
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        // إظهار رسالة
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+        
+        // إرسال بيانات للبوت
+        function sendToBot(data) {
+            return new Promise((resolve, reject) => {
+                try {
+                    tg.sendData(JSON.stringify(data));
+                    
+                    // استماع للرد من البوت
+                    tg.onEvent('mainButtonClicked', () => {});
+                    
+                    // في التطبيق الحقيقي، سنتلقى الرد عبر WebApp
+                    // هذا مجرد محاكاة للتطوير
+                    setTimeout(() => {
+                        // سيتم استبدال هذا بالرد الحقيقي من البوت
+                        resolve({});
+                    }, 1000);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+        
+        // تحميل بيانات المستخدم
+        async function loadUserData() {
+            showLoading();
+            
+            try {
+                // في التطبيق الحقيقي، هذا سيرسل طلب للبوت
+                // مؤقتاً نستخدم بيانات تجريبية
+                userData = {
+                    balance: 0.75,
+                    referral_count: 3,
+                    ads_watched: 7,
+                    max_ads: 10,
+                    user_id: 12345,
+                    username: 'TestUser',
+                    referral_link: 'https://t.me/ADCashBot?start=ref_12345',
+                    total_earned: 1.25,
+                    total_withdrawn: 0.5
+                };
+                
+                updateUI(userData);
+                loadAds();
+                loadReferrals();
+                loadWithdrawals();
+            } catch (error) {
+                showAlert('Error loading data. Please try again.', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // تحديث الواجهة
+        function updateUI(data) {
+            document.getElementById('username').textContent = data.username || 'User';
+            document.getElementById('userId').textContent = `ID: ${data.user_id}`;
+            document.getElementById('balance').textContent = `$${data.balance.toFixed(4)}`;
+            document.getElementById('referralCount').textContent = data.referral_count;
+            document.getElementById('adsWatched').textContent = `${data.ads_watched}/${data.max_ads}`;
+            document.getElementById('totalEarned').textContent = `$${data.total_earned.toFixed(4)}`;
+            
+            const progress = (data.ads_watched / data.max_ads) * 100;
+            document.getElementById('adProgress').style.width = `${progress}%`;
+            document.getElementById('adsCounter').textContent = `${data.ads_watched}/${data.max_ads} ads completed`;
+            
+            document.getElementById('availableBalance').textContent = `$${data.balance.toFixed(4)}`;
+            document.getElementById('referralLink').value = data.referral_link;
+        }
+        
+        // تحميل الإعلانات
+        function loadAds() {
+            const adsGrid = document.getElementById('adsGrid');
+            const maxAds = userData?.max_ads || 10;
+            const watched = userData?.ads_watched || 0;
+            
+            let adsHTML = '';
+            for (let i = 1; i <= maxAds; i++) {
+                const isCompleted = i <= watched;
+                adsHTML += `
+                    <div class="ad-card ${isCompleted ? 'completed' : ''}" 
+                         onclick="${!isCompleted ? `watchAd(${i})` : ''}">
+                        <div class="ad-icon">📺</div>
+                        <div class="ad-info">
+                            <div class="ad-title">Ad ${i}${isCompleted ? ' (Completed)' : ''}</div>
+                            <div class="ad-reward">Reward: $0.001</div>
+                        </div>
+                        <div class="ad-play-btn">▶️</div>
+                    </div>
+                `;
+            }
+            
+            adsGrid.innerHTML = adsHTML;
+            
+            const cooldownMsg = document.getElementById('cooldownMessage');
+            cooldownMsg.style.display = watched >= maxAds ? 'block' : 'none';
+        }
+        
+        // مشاهدة إعلان
+        async function watchAd(adNumber) {
+            if (!userData) return;
+            
+            showLoading();
+            
+            try {
+                // هنا يتم فتح إعلان Monetag
+                const monetagUrl = `https://ad.monetag.com/zone_id?user=${userData.user_id}&ad=${adNumber}`;
+                window.open(monetagUrl, '_blank');
+                
+                // محاكاة مشاهدة الإعلان
+                setTimeout(async () => {
+                    // تحديث الرصيد محلياً
+                    userData.balance += 0.001;
+                    userData.ads_watched += 1;
+                    
+                    updateUI(userData);
+                    loadAds();
+                    
+                    showAlert('+$0.001 added to your balance!', 'success');
+                    hideLoading();
+                }, 3000);
+                
+            } catch (error) {
+                hideLoading();
+                showAlert('Error watching ad. Please try again.', 'error');
+            }
+        }
+        
+        // تحميل الإحالات
+        async function loadReferrals() {
+            const referralsList = document.getElementById('referralsList');
+            
+            // بيانات تجريبية
+            const referrals = [
+                {
+                    first_name: 'John Doe',
+                    joined_date: new Date().toISOString(),
+                    status: 'completed'
+                },
+                {
+                    first_name: 'Sarah Smith',
+                    joined_date: new Date().toISOString(),
+                    status: 'pending'
+                },
+                {
+                    first_name: 'Mike Johnson',
+                    joined_date: new Date().toISOString(),
+                    status: 'pending'
+                }
+            ];
+            
+            if (referrals.length === 0) {
+                referralsList.innerHTML = '<p class="info-message">No referrals yet. Share your link to earn!</p>';
+                return;
+            }
+            
+            let html = '';
+            referrals.forEach(ref => {
+                const statusClass = ref.status === 'completed' ? 'status-completed' : 'status-pending';
+                const date = new Date(ref.joined_date).toLocaleDateString();
+                html += `
+                    <div class="referral-item">
+                        <div>
+                            <div class="referral-name">${ref.first_name}</div>
+                            <div class="referral-date">Joined: ${date}</div>
+                        </div>
+                        <span class="referral-status ${statusClass}">
+                            ${ref.status === 'completed' ? '✓ Completed' : '⏳ Pending'}
+                        </span>
+                    </div>
+                `;
+            });
+            
+            referralsList.innerHTML = html;
+            
+            const completedCount = referrals.filter(r => r.status === 'completed').length;
+            document.getElementById('totalReferrals').textContent = referrals.length;
+            document.getElementById('referralEarnings').textContent = `$${(completedCount * 0.01).toFixed(2)}`;
+        }
+        
+        // تحميل تاريخ السحوبات
+        async function loadWithdrawals() {
+            const withdrawalsList = document.getElementById('withdrawalsList');
+            
+            // بيانات تجريبية
+            const withdrawals = [
+                {
+                    amount: 0.5,
+                    status: 'pending',
+                    request_date: new Date().toISOString()
+                },
+                {
+                    amount: 0.75,
+                    status: 'approved',
+                    request_date: new Date(Date.now() - 86400000).toISOString()
+                }
+            ];
+            
+            if (withdrawals.length === 0) {
+                withdrawalsList.innerHTML = '<p class="info-message">No withdrawal history yet.</p>';
+                return;
+            }
+            
+            let html = '';
+            withdrawals.forEach(w => {
+                const statusClass = `status-${w.status}`;
+                let statusText = w.status === 'pending' ? '⏳ Pending' : 
+                                w.status === 'approved' ? '✅ Approved' : '❌ Rejected';
+                const date = new Date(w.request_date).toLocaleString();
+                
+                html += `
+                    <div class="withdrawal-item">
+                        <div>
+                            <div class="withdrawal-amount">$${w.amount.toFixed(4)}</div>
+                            <div class="withdrawal-date">${date}</div>
+                        </div>
+                        <span class="withdrawal-status ${statusClass}">${statusText}</span>
+                    </div>
+                `;
+            });
+            
+            withdrawalsList.innerHTML = html;
+        }
+        
+        // طلب سحب
+        async function requestWithdrawal() {
+            const binanceId = document.getElementById('binanceId').value.trim();
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            
+            if (!binanceId) {
+                showAlert('Please enter your Binance ID', 'error');
+                return;
+            }
+            
+            if (!amount || amount < 0.5) {
+                showAlert('Minimum withdrawal amount is $0.50', 'error');
+                return;
+            }
+            
+            if (amount > userData.balance) {
+                showAlert('Insufficient balance', 'error');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                // محاكاة طلب السحب
+                setTimeout(() => {
+                    userData.balance -= amount;
+                    document.getElementById('balance').textContent = `$${userData.balance.toFixed(4)}`;
+                    document.getElementById('availableBalance').textContent = `$${userData.balance.toFixed(4)}`;
+                    
+                    showAlert('Withdrawal request created successfully!', 'success');
+                    
+                    document.getElementById('binanceId').value = '';
+                    document.getElementById('withdrawAmount').value = '';
+                    
+                    loadWithdrawals();
+                    hideLoading();
+                }, 1500);
+                
+            } catch (error) {
+                hideLoading();
+                showAlert('Error processing withdrawal', 'error');
+            }
+        }
+        
+        // نسخ رابط الإحالة
+        function copyReferralLink() {
+            const linkInput = document.getElementById('referralLink');
+            linkInput.select();
+            document.execCommand('copy');
+            showAlert('Referral link copied!', 'success');
+        }
+        
+        // تغيير التبويب
+        function showTab(tabName) {
+            currentTab = tabName;
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            if (tabName === 'referrals') {
+                loadReferrals();
+            } else if (tabName === 'withdraw') {
+                loadWithdrawals();
+            }
+        }
+        
+        // ==================== تهيئة التطبيق ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // التحقق من وجود Telegram WebApp
+            if (!window.Telegram || !window.Telegram.WebApp) {
+                showAlert('Please open this app from Telegram', 'error');
+                return;
+            }
+            
+            // يمكن إضافة منطق إضافي هنا
+        });
     </script>
 </body>
-</html>
-
-
-
+    </html>
