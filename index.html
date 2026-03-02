@@ -51,8 +51,7 @@
             <h4 id="ad-step-text">دورة المشاهدة: 1 / 3</h4>
             <p style="font-size: 13px; color: #8892b0;">اضغط على الزر أدناه لفتح الإعلان، ثم انتظر العداد للحصول على المكافأة.</p>
             
-            <button class="main-btn" id="open-ad-btn" onclick="openAndStartAd()" style="background: #ffffff; color: #000; margin-bottom: 15px;">فتح الإعلان 📺</button>
-            
+<button class="main-btn" id="open-ad-btn" onclick="openAndStartAd()">فتح الإعلان 📺</button>            
             <div style="background: #0b0f1a; height: 10px; border-radius: 10px; overflow: hidden;">
                 <div id="bar" class="progress-bar"></div>
             </div>
@@ -126,18 +125,19 @@
         }
 
       // --- تحديث دالة فتح الإعلان بالرابط الخاص بك ---
-
 function openAndStartAd() {
-    // الرابط المباشر الذي أرسلته (Monetag Smart Link)
     const monetagDirectLink = "https://omg10.com/4/10673185"; 
 
-    // 1. فتح الإعلان في نافذة جديدة (سيفتح الإعلان للمستخدم)
-    window.open(monetagDirectLink, "_blank");
+    // استخدام محرك تليجرام لفتح الرابط لضمان عدم ظهور صفحة بيضاء
+    if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.openLink(monetagDirectLink);
+    } else {
+        window.open(monetagDirectLink, "_blank");
+    }
 
-    // 2. تغيير حالة الواجهة وبدء العداد (20 ثانية)
-    isAdOpened = true;
-    document.getElementById('open-ad-btn').style.display = 'none'; // إخفاء زر الفتح
-    startProgress(); // تشغيل شريط التحميل الأخضر
+    // بدء العداد فوراً في الخلفية
+    document.getElementById('open-ad-btn').style.display = 'none';
+    startProgress(); 
 }
 
         function startProgress() {
@@ -183,5 +183,6 @@ function openAndStartAd() {
     </script>
 </body>
 </html>
+
 
 
