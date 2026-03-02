@@ -2,188 +2,280 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AD Cash - Earn Money</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AD Cash - Mini App</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1a4d8c;  /* أزرق داكن للخلفية */
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
+            padding: 0;
         }
 
         .container {
             width: 100%;
-            max-width: 400px;
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            margin: 20px;
+            max-width: 100%;
+            background: #f0f5ff;  /* أزرق فاتح جداً للمحتوى */
+            min-height: 100vh;
+            border-radius: 0;
+            box-shadow: none;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
         }
 
+        /* شاشة التحقق من الاشتراك */
         .screen {
             display: none;
             padding: 20px;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #1a4d8c 0%, #0d2b4d 100%);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .screen.active {
-            display: block;
+            display: flex;
         }
 
-        /* شاشة التحقق */
         .warning-icon {
-            font-size: 64px;
+            font-size: 80px;
             text-align: center;
-            margin: 30px 0 20px;
-        }
-
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        p {
-            text-align: center;
-            color: #666;
             margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            width: 120px;
+            height: 120px;
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .screen h2 {
+            text-align: center;
+            color: white;
+            margin-bottom: 15px;
+            font-size: 28px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .screen p {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 40px;
+            font-size: 16px;
+            line-height: 1.5;
+            padding: 0 20px;
         }
 
         .btn {
             display: block;
-            width: 100%;
-            padding: 15px;
+            width: 90%;
+            max-width: 300px;
+            padding: 18px;
             border: none;
-            border-radius: 10px;
-            font-size: 16px;
+            border-radius: 30px;
+            font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
             text-align: center;
             text-decoration: none;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: white;
+            color: #1a4d8c;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.3);
         }
 
         .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* الواجهة الرئيسية */
+        #main-screen {
+            background: #f0f5ff;
+            padding: 0;
+            min-height: 100vh;
+            display: none;
+            flex-direction: column;
+        }
+
+        #main-screen.active {
+            display: flex;
         }
 
         /* الهيدر */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: -20px -20px 20px;
-            padding: 20px;
+            background: linear-gradient(135deg, #1a4d8c 0%, #2a6bb0 100%);
+            padding: 30px 20px 25px;
             color: white;
-            border-radius: 0 0 30px 30px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 5px 20px rgba(26, 77, 140, 0.3);
+            position: relative;
+            z-index: 10;
         }
 
         .user-info {
-            margin-bottom: 15px;
-        }
-
-        #username {
-            font-size: 20px;
-            font-weight: bold;
-            display: block;
-        }
-
-        .user-id {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        .balance-box {
-            background: rgba(255,255,255,0.2);
-            padding: 15px;
-            border-radius: 10px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
+        .user-name-section {
+            flex: 1;
+        }
+
+        #username {
+            font-size: 24px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .user-id {
+            font-size: 13px;
+            opacity: 0.8;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border: 2px solid white;
+        }
+
+        .balance-box {
+            background: rgba(255,255,255,0.2);
+            padding: 18px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
         .balance-label {
-            font-size: 14px;
+            font-size: 16px;
+            font-weight: 500;
+            opacity: 0.9;
         }
 
         .balance-amount {
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        /* المحتوى الرئيسي */
+        .main-content {
+            flex: 1;
+            padding: 20px;
         }
 
         /* الإحصائيات */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 25px;
         }
 
         .stat-card {
-            background: #f8f9fa;
-            padding: 15px 10px;
-            border-radius: 10px;
+            background: white;
+            padding: 18px 10px;
+            border-radius: 20px;
             text-align: center;
+            box-shadow: 0 5px 15px rgba(26, 77, 140, 0.1);
+            border: 1px solid rgba(26, 77, 140, 0.1);
         }
 
         .stat-value {
             display: block;
-            font-size: 18px;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 5px;
+            font-size: 22px;
+            font-weight: 800;
+            color: #1a4d8c;
+            margin-bottom: 8px;
         }
 
         .stat-label {
-            font-size: 12px;
-            color: #999;
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
         }
 
         /* شريط التنقل */
         .nav-tabs {
             display: flex;
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 5px;
-            margin-bottom: 20px;
+            background: white;
+            border-radius: 30px;
+            padding: 6px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(26, 77, 140, 0.1);
+            border: 1px solid rgba(26, 77, 140, 0.1);
         }
 
         .tab-btn {
             flex: 1;
-            padding: 12px;
+            padding: 14px 8px;
             border: none;
             background: none;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             color: #999;
             cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.3s;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
 
         .tab-btn.active {
-            background: white;
-            color: #667eea;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #1a4d8c 0%, #2a6bb0 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(26, 77, 140, 0.3);
         }
 
         .tab-content {
@@ -195,59 +287,95 @@
         }
 
         /* الإعلانات */
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a4d8c;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .ads-progress {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(26, 77, 140, 0.1);
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .progress-label {
+            color: #1a4d8c;
+        }
+
+        .progress-value {
+            color: #2a6bb0;
         }
 
         .progress-bar {
             width: 100%;
-            height: 10px;
-            background: #f0f0f0;
-            border-radius: 5px;
+            height: 12px;
+            background: #e0e8ff;
+            border-radius: 6px;
             overflow: hidden;
-            margin-bottom: 5px;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: width 0.3s;
-        }
-
-        #adsCounter {
-            font-size: 14px;
-            color: #666;
+            background: linear-gradient(90deg, #1a4d8c 0%, #2a6bb0 100%);
+            transition: width 0.3s ease;
+            border-radius: 6px;
         }
 
         .ads-grid {
-            display: grid;
-            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
             margin-bottom: 20px;
         }
 
         .ad-card {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
+            background: white;
+            padding: 18px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             gap: 15px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(26, 77, 140, 0.1);
+            border: 1px solid rgba(26, 77, 140, 0.1);
         }
 
-        .ad-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        .ad-card:active {
+            transform: scale(0.98);
+            background: #f5f9ff;
         }
 
         .ad-card.completed {
-            opacity: 0.5;
+            opacity: 0.6;
+            background: #f0f0f0;
             cursor: not-allowed;
         }
 
         .ad-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1a4d8c 0%, #2a6bb0 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 24px;
+            color: white;
         }
 
         .ad-info {
@@ -255,217 +383,316 @@
         }
 
         .ad-title {
-            font-weight: 600;
-            color: #333;
+            font-weight: 700;
+            color: #1a4d8c;
             margin-bottom: 5px;
+            font-size: 16px;
         }
 
         .ad-reward {
-            font-size: 12px;
-            color: #4CAF50;
+            font-size: 14px;
+            color: #00a86b;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .ad-play-btn {
-            background: #667eea;
+            background: #1a4d8c;
             color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-decoration: none;
+            font-size: 20px;
+            box-shadow: 0 5px 10px rgba(26, 77, 140, 0.3);
         }
 
+        /* رسالة المعلومات */
         .info-message {
-            background: #fff3cd;
-            color: #856404;
-            padding: 15px;
-            border-radius: 10px;
+            background: #e3f2fd;
+            color: #1a4d8c;
+            padding: 20px;
+            border-radius: 20px;
             text-align: center;
+            font-weight: 500;
+            border: 1px solid rgba(26, 77, 140, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         /* الإحالات */
         .referral-link-box {
-            display: flex;
-            gap: 10px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(26, 77, 140, 0.1);
         }
 
-        .referral-link-box input {
+        .link-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .link-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .link-input-group input {
             flex: 1;
-            padding: 12px;
-            border: 2px solid #f0f0f0;
-            border-radius: 10px;
-            font-size: 12px;
+            padding: 15px;
+            border: 2px solid #e0e8ff;
+            border-radius: 15px;
+            font-size: 14px;
+            background: #f8faff;
+            color: #1a4d8c;
+            font-weight: 500;
+        }
+
+        .link-input-group input:focus {
+            outline: none;
+            border-color: #1a4d8c;
         }
 
         .copy-btn {
-            padding: 12px 20px;
-            background: #f0f0f0;
+            padding: 0 25px;
+            background: linear-gradient(135deg, #1a4d8c 0%, #2a6bb0 100%);
             border: none;
-            border-radius: 10px;
+            border-radius: 15px;
+            color: white;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        .copy-btn:hover {
-            background: #667eea;
-            color: white;
+        .copy-btn:active {
+            transform: scale(0.95);
         }
 
         .referral-stats {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(26, 77, 140, 0.1);
         }
 
         .stat-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e8ff;
         }
 
         .stat-row:last-child {
-            margin-bottom: 0;
+            border-bottom: none;
+        }
+
+        .stat-row span {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .stat-row strong {
+            color: #1a4d8c;
+            font-size: 18px;
+            font-weight: 700;
         }
 
         .referrals-list {
-            max-height: 300px;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .referral-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 10px;
+            background: white;
+            padding: 18px;
+            border-radius: 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 5px 15px rgba(26, 77, 140, 0.1);
         }
 
-        .referral-name {
-            font-weight: 600;
-            color: #333;
+        .referral-info h4 {
+            color: #1a4d8c;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .referral-date {
+            font-size: 12px;
+            color: #999;
         }
 
         .referral-status {
-            font-size: 12px;
-            padding: 5px 10px;
-            border-radius: 15px;
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 600;
         }
 
         .status-completed {
             background: #d4edda;
-            color: #155724;
+            color: #00a86b;
         }
 
         .status-pending {
             background: #fff3cd;
-            color: #856404;
+            color: #ff9800;
         }
 
         /* السحب */
         .withdraw-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(26, 77, 140, 0.1);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e8ff;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #1a4d8c;
+            font-weight: 700;
+            font-size: 18px;
         }
 
         .withdraw-form {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(26, 77, 140, 0.1);
         }
 
         .form-input {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #f0f0f0;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            font-size: 14px;
+            padding: 16px;
+            border: 2px solid #e0e8ff;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            font-size: 15px;
+            background: #f8faff;
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #1a4d8c;
         }
 
         .withdrawals-list {
-            max-height: 300px;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .withdrawal-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 10px;
+            background: white;
+            padding: 18px;
+            border-radius: 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 5px 15px rgba(26, 77, 140, 0.1);
         }
 
-        .withdrawal-amount {
-            font-weight: bold;
-            color: #333;
+        .withdrawal-info h4 {
+            color: #1a4d8c;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .withdrawal-date {
+            font-size: 12px;
+            color: #999;
         }
 
         .withdrawal-status {
-            font-size: 12px;
-            padding: 5px 10px;
-            border-radius: 15px;
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 600;
         }
 
         .status-pending {
             background: #fff3cd;
-            color: #856404;
+            color: #ff9800;
         }
 
         .status-approved {
             background: #d4edda;
-            color: #155724;
+            color: #00a86b;
         }
 
         .status-rejected {
             background: #f8d7da;
-            color: #721c24;
-        }
-
-        .withdrawal-date {
-            font-size: 10px;
-            color: #999;
+            color: #dc3545;
         }
 
         /* رسائل التنبيه */
         .alert {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            border-radius: 30px;
             text-align: center;
-            animation: slideIn 0.3s;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideDown 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .alert-success {
-            background: #d4edda;
-            color: #155724;
+            background: #00a86b;
+            color: white;
         }
 
         .alert-error {
-            background: #f8d7da;
-            color: #721c24;
+            background: #dc3545;
+            color: white;
         }
 
         .alert-info {
-            background: #d1ecf1;
-            color: #0c5460;
+            background: #1a4d8c;
+            color: white;
         }
 
-        @keyframes slideIn {
+        @keyframes slideDown {
             from {
-                transform: translateY(-20px);
+                transform: translateY(-100%);
                 opacity: 0;
             }
             to {
@@ -474,34 +701,51 @@
             }
         }
 
-        /* تحميل */
+        /* شاشة التحميل */
         .loading {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255,255,255,0.9);
+            background: rgba(26, 77, 140, 0.95);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
         }
 
         .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-bottom: 20px;
         }
 
+        .loading p {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* تذييل */
+        .footer {
+            padding: 15px;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            border-top: 1px solid #e0e8ff;
+            margin-top: auto;
         }
     </style>
 </head>
@@ -510,10 +754,10 @@
         <!-- شاشة التحقق من الاشتراك -->
         <div id="subscription-check" class="screen active">
             <div class="warning-icon">🔒</div>
-            <h2>Channel Subscription Required</h2>
-            <p>Please join our official channel to start earning!</p>
-            <a href="https://t.me/ADCash_Official" class="btn btn-primary" target="_blank">Join Channel</a>
-            <button class="btn btn-secondary" onclick="checkSubscription()">I've Joined ✓</button>
+            <h2>Join Channel First!</h2>
+            <p>Subscribe to our official channel to start earning money with AD Cash</p>
+            <a href="https://t.me/ADCash_Official" class="btn btn-primary" target="_blank">📢 Join Channel</a>
+            <button class="btn btn-secondary" onclick="checkSubscription()">✓ I've Joined</button>
         </div>
 
         <!-- الواجهة الرئيسية -->
@@ -521,104 +765,161 @@
             <!-- الهيدر -->
             <div class="header">
                 <div class="user-info">
-                    <span id="username">Loading...</span>
-                    <span class="user-id" id="userId">ID: </span>
+                    <div class="user-name-section">
+                        <span id="username">Loading...</span>
+                        <span class="user-id" id="userId">ID: </span>
+                    </div>
+                    <div class="user-avatar">
+                        👤
+                    </div>
                 </div>
                 <div class="balance-box">
-                    <span class="balance-label">Balance</span>
+                    <span class="balance-label">💰 Total Balance</span>
                     <span class="balance-amount" id="balance">$0.00</span>
                 </div>
             </div>
 
-            <!-- الإحصائيات السريعة -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-value" id="referralCount">0</span>
-                    <span class="stat-label">Referrals</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value" id="adsWatched">0/10</span>
-                    <span class="stat-label">Ads Today</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value" id="totalEarned">$0.00</span>
-                    <span class="stat-label">Total Earned</span>
-                </div>
-            </div>
-
-            <!-- شريط التنقل -->
-            <div class="nav-tabs">
-                <button class="tab-btn active" onclick="showTab('ads')">📺 Ads</button>
-                <button class="tab-btn" onclick="showTab('referrals')">👥 Referrals</button>
-                <button class="tab-btn" onclick="showTab('withdraw')">💸 Withdraw</button>
-            </div>
-
-            <!-- محتوى التبويبات -->
-            <div id="ads-tab" class="tab-content active">
-                <h3>Available Ads</h3>
-                <div class="ads-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="adProgress" style="width: 0%"></div>
+            <!-- المحتوى الرئيسي -->
+            <div class="main-content">
+                <!-- الإحصائيات السريعة -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-value" id="referralCount">0</span>
+                        <span class="stat-label">Referrals</span>
                     </div>
-                    <span id="adsCounter">0/10 ads completed</span>
-                </div>
-                
-                <div class="ads-grid" id="adsGrid">
-                    <!-- سيتم توليد الإعلانات هنا -->
-                </div>
-
-                <div class="info-message" id="cooldownMessage" style="display: none;">
-                    ⏰ You've completed today's ads! Come back in 24 hours.
-                </div>
-            </div>
-
-            <div id="referrals-tab" class="tab-content">
-                <h3>Your Referral Link</h3>
-                <div class="referral-link-box">
-                    <input type="text" id="referralLink" readonly>
-                    <button class="copy-btn" onclick="copyReferralLink()">📋 Copy</button>
-                </div>
-                
-                <div class="referral-stats">
-                    <div class="stat-row">
-                        <span>Total Referrals:</span>
-                        <strong id="totalReferrals">0</strong>
+                    <div class="stat-card">
+                        <span class="stat-value" id="adsWatched">0/10</span>
+                        <span class="stat-label">Ads Today</span>
                     </div>
-                    <div class="stat-row">
-                        <span>Earned from referrals:</span>
-                        <strong id="referralEarnings">$0.00</strong>
+                    <div class="stat-card">
+                        <span class="stat-value" id="totalEarned">$0.00</span>
+                        <span class="stat-label">Total Earned</span>
                     </div>
                 </div>
 
-                <h4>Your Referrals</h4>
-                <div class="referrals-list" id="referralsList">
-                    <p class="info-message">Loading referrals...</p>
+                <!-- شريط التنقل -->
+                <div class="nav-tabs">
+                    <button class="tab-btn active" onclick="showTab('ads')">
+                        <span>📺</span> Ads
+                    </button>
+                    <button class="tab-btn" onclick="showTab('referrals')">
+                        <span>👥</span> Referrals
+                    </button>
+                    <button class="tab-btn" onclick="showTab('withdraw')">
+                        <span>💸</span> Withdraw
+                    </button>
+                </div>
+
+                <!-- تبويب الإعلانات -->
+                <div id="ads-tab" class="tab-content active">
+                    <div class="section-title">
+                        <span>📺</span> Available Ads
+                    </div>
+                    
+                    <div class="ads-progress">
+                        <div class="progress-info">
+                            <span class="progress-label">Daily Progress</span>
+                            <span class="progress-value" id="adsCounter">0/10 completed</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="adProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="ads-grid" id="adsGrid">
+                        <!-- سيتم توليد الإعلانات هنا -->
+                    </div>
+
+                    <div class="info-message" id="cooldownMessage" style="display: none;">
+                        <span>⏰</span> You've completed today's ads! Come back in 24 hours.
+                    </div>
+                </div>
+
+                <!-- تبويب الإحالات -->
+                <div id="referrals-tab" class="tab-content">
+                    <div class="section-title">
+                        <span>👥</span> Referral Program
+                    </div>
+                    
+                    <div class="referral-link-box">
+                        <span class="link-label">Your referral link:</span>
+                        <div class="link-input-group">
+                            <input type="text" id="referralLink" readonly value="https://t.me/ADCashBot?start=ref_">
+                            <button class="copy-btn" onclick="copyReferralLink()">
+                                <span>📋</span> Copy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="referral-stats">
+                        <div class="stat-row">
+                            <span>Total Referrals:</span>
+                            <strong id="totalReferrals">0</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span>Earned from referrals:</span>
+                            <strong id="referralEarnings">$0.00</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span>Commission per referral:</span>
+                            <strong>$0.01</strong>
+                        </div>
+                    </div>
+
+                    <div class="section-title" style="margin-top: 20px;">
+                        <span>📋</span> Your Referrals
+                    </div>
+                    
+                    <div class="referrals-list" id="referralsList">
+                        <!-- سيتم عرض الإحالات هنا -->
+                    </div>
+                </div>
+
+                <!-- تبويب السحب -->
+                <div id="withdraw-tab" class="tab-content">
+                    <div class="section-title">
+                        <span>💸</span> Withdraw Funds
+                    </div>
+                    
+                    <div class="withdraw-info">
+                        <div class="info-row">
+                            <span class="info-label">Minimum withdrawal:</span>
+                            <span class="info-value">$0.50</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Available balance:</span>
+                            <span class="info-value" id="availableBalance">$0.00</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Payment method:</span>
+                            <span class="info-value">Binance</span>
+                        </div>
+                    </div>
+
+                    <div class="withdraw-form">
+                        <input type="text" id="binanceId" placeholder="Enter your Binance ID" class="form-input">
+                        <input type="number" id="withdrawAmount" placeholder="Amount in $" min="0.5" step="0.01" class="form-input">
+                        <button class="btn btn-primary" onclick="requestWithdrawal()" style="width: 100%; margin: 0;">Request Withdrawal</button>
+                    </div>
+
+                    <div class="section-title" style="margin-top: 20px;">
+                        <span>📜</span> Withdrawal History
+                    </div>
+                    
+                    <div class="withdrawals-list" id="withdrawalsList">
+                        <!-- سيتم عرض تاريخ السحوبات هنا -->
+                    </div>
                 </div>
             </div>
 
-            <div id="withdraw-tab" class="tab-content">
-                <h3>Withdraw Funds</h3>
-                
-                <div class="withdraw-info">
-                    <p>Minimum withdrawal: <strong>$0.50</strong></p>
-                    <p>Available balance: <strong id="availableBalance">$0.00</strong></p>
-                </div>
-
-                <div class="withdraw-form">
-                    <input type="text" id="binanceId" placeholder="Enter your Binance ID" class="form-input">
-                    <input type="number" id="withdrawAmount" placeholder="Amount in $" min="0.5" step="0.01" class="form-input">
-                    <button class="btn btn-primary" onclick="requestWithdrawal()">Request Withdrawal</button>
-                </div>
-
-                <h4>Withdrawal History</h4>
-                <div class="withdrawals-list" id="withdrawalsList">
-                    <p class="info-message">Loading withdrawals...</p>
-                </div>
+            <!-- تذييل -->
+            <div class="footer">
+                © 2024 AD Cash - Earn Money Watching Ads
             </div>
         </div>
     </div>
 
-    <!-- طبقة التحميل -->
+    <!-- شاشة التحميل -->
     <div id="loading" class="loading" style="display: none;">
         <div class="loading-spinner"></div>
         <p>Loading...</p>
@@ -627,8 +928,10 @@
     <script>
         // ==================== تهيئة Telegram WebApp ====================
         const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.enableClosingConfirmation();
+        tg.expand(); // توسيع التطبيق لملء الشاشة
+        tg.enableClosingConfirmation(); // تفعيل تأكيد الإغلاق
+        tg.setHeaderColor('#1a4d8c'); // تعيين لون الهيدر
+        tg.setBackgroundColor('#f0f5ff'); // تعيين لون الخلفية
         
         // ==================== المتغيرات العامة ====================
         let userData = null;
@@ -659,8 +962,7 @@
             alertDiv.className = `alert alert-${type}`;
             alertDiv.textContent = message;
             
-            const container = document.querySelector('.container');
-            container.insertBefore(alertDiv, container.firstChild);
+            document.body.appendChild(alertDiv);
             
             setTimeout(() => {
                 alertDiv.remove();
@@ -677,7 +979,6 @@
                     tg.onEvent('mainButtonClicked', () => {});
                     
                     // في التطبيق الحقيقي، سنتلقى الرد عبر WebApp
-                    // هذا مجرد محاكاة للتطوير
                     setTimeout(() => {
                         // سيتم استبدال هذا بالرد الحقيقي من البوت
                         resolve({});
@@ -693,15 +994,14 @@
             showLoading();
             
             try {
-                // في التطبيق الحقيقي، هذا سيرسل طلب للبوت
-                // مؤقتاً نستخدم بيانات تجريبية
+                // بيانات تجريبية - في التطبيق الحقيقي ستأتي من البوت
                 userData = {
                     balance: 0.75,
                     referral_count: 3,
                     ads_watched: 7,
                     max_ads: 10,
                     user_id: 12345,
-                    username: 'TestUser',
+                    username: 'Ahmed',
                     referral_link: 'https://t.me/ADCashBot?start=ref_12345',
                     total_earned: 1.25,
                     total_withdrawn: 0.5
@@ -729,7 +1029,7 @@
             
             const progress = (data.ads_watched / data.max_ads) * 100;
             document.getElementById('adProgress').style.width = `${progress}%`;
-            document.getElementById('adsCounter').textContent = `${data.ads_watched}/${data.max_ads} ads completed`;
+            document.getElementById('adsCounter').textContent = `${data.ads_watched}/${data.max_ads} completed`;
             
             document.getElementById('availableBalance').textContent = `$${data.balance.toFixed(4)}`;
             document.getElementById('referralLink').value = data.referral_link;
@@ -749,10 +1049,12 @@
                          onclick="${!isCompleted ? `watchAd(${i})` : ''}">
                         <div class="ad-icon">📺</div>
                         <div class="ad-info">
-                            <div class="ad-title">Ad ${i}${isCompleted ? ' (Completed)' : ''}</div>
-                            <div class="ad-reward">Reward: $0.001</div>
+                            <div class="ad-title">Advertisement ${i}</div>
+                            <div class="ad-reward">
+                                <span>💰</span> +$0.001
+                            </div>
                         </div>
-                        <div class="ad-play-btn">▶️</div>
+                        <div class="ad-play-btn">▶</div>
                     </div>
                 `;
             }
@@ -760,7 +1062,7 @@
             adsGrid.innerHTML = adsHTML;
             
             const cooldownMsg = document.getElementById('cooldownMessage');
-            cooldownMsg.style.display = watched >= maxAds ? 'block' : 'none';
+            cooldownMsg.style.display = watched >= maxAds ? 'flex' : 'none';
         }
         
         // مشاهدة إعلان
@@ -775,10 +1077,10 @@
                 window.open(monetagUrl, '_blank');
                 
                 // محاكاة مشاهدة الإعلان
-                setTimeout(async () => {
-                    // تحديث الرصيد محلياً
+                setTimeout(() => {
                     userData.balance += 0.001;
                     userData.ads_watched += 1;
+                    userData.total_earned += 0.001;
                     
                     updateUI(userData);
                     loadAds();
@@ -800,40 +1102,40 @@
             // بيانات تجريبية
             const referrals = [
                 {
-                    first_name: 'John Doe',
-                    joined_date: new Date().toISOString(),
+                    name: 'John Doe',
+                    date: new Date(),
                     status: 'completed'
                 },
                 {
-                    first_name: 'Sarah Smith',
-                    joined_date: new Date().toISOString(),
+                    name: 'Sarah Smith',
+                    date: new Date(),
                     status: 'pending'
                 },
                 {
-                    first_name: 'Mike Johnson',
-                    joined_date: new Date().toISOString(),
+                    name: 'Mike Johnson',
+                    date: new Date(),
                     status: 'pending'
                 }
             ];
             
             if (referrals.length === 0) {
-                referralsList.innerHTML = '<p class="info-message">No referrals yet. Share your link to earn!</p>';
+                referralsList.innerHTML = '<div class="info-message"><span>📭</span> No referrals yet</div>';
                 return;
             }
             
             let html = '';
             referrals.forEach(ref => {
                 const statusClass = ref.status === 'completed' ? 'status-completed' : 'status-pending';
-                const date = new Date(ref.joined_date).toLocaleDateString();
+                const statusText = ref.status === 'completed' ? '✓ Completed' : '⏳ Pending';
+                const dateStr = ref.date.toLocaleDateString();
+                
                 html += `
                     <div class="referral-item">
-                        <div>
-                            <div class="referral-name">${ref.first_name}</div>
-                            <div class="referral-date">Joined: ${date}</div>
+                        <div class="referral-info">
+                            <h4>${ref.name}</h4>
+                            <div class="referral-date">Joined: ${dateStr}</div>
                         </div>
-                        <span class="referral-status ${statusClass}">
-                            ${ref.status === 'completed' ? '✓ Completed' : '⏳ Pending'}
-                        </span>
+                        <span class="referral-status ${statusClass}">${statusText}</span>
                     </div>
                 `;
             });
@@ -854,17 +1156,17 @@
                 {
                     amount: 0.5,
                     status: 'pending',
-                    request_date: new Date().toISOString()
+                    date: new Date()
                 },
                 {
                     amount: 0.75,
                     status: 'approved',
-                    request_date: new Date(Date.now() - 86400000).toISOString()
+                    date: new Date(Date.now() - 86400000)
                 }
             ];
             
             if (withdrawals.length === 0) {
-                withdrawalsList.innerHTML = '<p class="info-message">No withdrawal history yet.</p>';
+                withdrawalsList.innerHTML = '<div class="info-message"><span>📭</span> No withdrawals yet</div>';
                 return;
             }
             
@@ -872,14 +1174,14 @@
             withdrawals.forEach(w => {
                 const statusClass = `status-${w.status}`;
                 let statusText = w.status === 'pending' ? '⏳ Pending' : 
-                                w.status === 'approved' ? '✅ Approved' : '❌ Rejected';
-                const date = new Date(w.request_date).toLocaleString();
+                                w.status === 'approved' ? '✓ Approved' : '✗ Rejected';
+                const dateStr = w.date.toLocaleString();
                 
                 html += `
                     <div class="withdrawal-item">
-                        <div>
-                            <div class="withdrawal-amount">$${w.amount.toFixed(4)}</div>
-                            <div class="withdrawal-date">${date}</div>
+                        <div class="withdrawal-info">
+                            <h4>$${w.amount.toFixed(4)}</h4>
+                            <div class="withdrawal-date">${dateStr}</div>
                         </div>
                         <span class="withdrawal-status ${statusClass}">${statusText}</span>
                     </div>
@@ -915,6 +1217,8 @@
                 // محاكاة طلب السحب
                 setTimeout(() => {
                     userData.balance -= amount;
+                    userData.total_withdrawn += amount;
+                    
                     document.getElementById('balance').textContent = `$${userData.balance.toFixed(4)}`;
                     document.getElementById('availableBalance').textContent = `$${userData.balance.toFixed(4)}`;
                     
@@ -970,9 +1274,9 @@
                 return;
             }
             
-            // يمكن إضافة منطق إضافي هنا
+            // إرسال إشارة أن التطبيق جاهز
+            tg.ready();
         });
     </script>
 </body>
-    </html>
-
+</html>
