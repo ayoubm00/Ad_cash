@@ -4,80 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADCash - USDT Rewards</title>
+    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+<script src="https://alwingulla.com/88/p9/7a/10673309.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #00ff88; --bg: #0b0f1a; --card: #161b2c; --text: #ffffff; }
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); margin: 0; user-select: none; }
-        .page { display: none; padding: 20px; padding-bottom: 100px; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); margin: 0; user-select: none; overflow-x: hidden; }
+        .page { display: none; padding: 20px; padding-bottom: 100px; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
         .card { background: var(--card); border-radius: 20px; padding: 25px; margin-bottom: 20px; text-align: center; border: 1px solid #232a3d; box-shadow: 0 10px 15px rgba(0,0,0,0.3); }
-        .balance { font-size: 38px; color: var(--primary); font-weight: bold; text-shadow: 0 0 10px rgba(0,255,136,0.3); }
-        .nav { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; border-top: 1px solid #232a3d; padding: 12px 0; }
-        .nav-item { flex: 1; text-align: center; font-size: 12px; opacity: 0.5; transition: 0.3s; }
+        .balance { font-size: 38px; color: var(--primary); font-weight: bold; text-shadow: 0 0 10px rgba(0,255,136,0.2); }
+        
+        .nav { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; border-top: 1px solid #232a3d; padding: 12px 0; z-index: 1000; }
+        .nav-item { flex: 1; text-align: center; font-size: 11px; opacity: 0.5; cursor: pointer; transition: 0.3s; }
         .nav-item.active { opacity: 1; color: var(--primary); font-weight: bold; }
+        
         .main-btn { background: var(--primary); color: #000; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
-        .main-btn:active { transform: scale(0.98); opacity: 0.9; }
-        .progress-bar { height: 8px; width: 0%; background: var(--primary); transition: width 1s linear; border-radius: 10px; }
-        .ad-counter { font-size: 14px; color: #8892b0; margin-bottom: 10px; }
-        input { width: 100%; padding: 14px; background: #0b0f1a; border: 1px solid #232a3d; color: #fff; border-radius: 10px; margin: 15px 0; text-align: center; }
+        .main-btn:active { transform: scale(0.98); }
+        .main-btn:disabled { background: #333; color: #777; cursor: not-allowed; }
+
+        .progress-container { background: #0b0f1a; height: 10px; border-radius: 10px; margin: 20px 0; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: width 1s linear; border-radius: 10px; }
+        
+        input { width: 100%; padding: 14px; background: #0b0f1a; border: 1px solid #232a3d; color: #fff; border-radius: 10px; margin: 10px 0; text-align: center; font-size: 14px; box-sizing: border-box; }
+        
         #sub-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
+        .ad-counter { font-size: 14px; color: #8892b0; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
     <div id="sub-overlay">
-        <h2 style="color: var(--primary);">انضم إلينا أولاً! 🚀</h2>
-        <p>يجب الاشتراك في القناة للوصول إلى مهام الربح.</p>
-        <a href="https://t.me/ADCash00" style="background:#24a1de; color:#fff; text-decoration:none; padding:15px; border-radius:12px; width:80%; margin-bottom:10px; font-weight:bold;">قناة ADCash</a>
-        <button onclick="checkSubscription()" class="main-btn" style="width:80%;">تحقق من الاشتراك ✅</button>
+        <h2 style="color: var(--primary);">خطوة واحدة للبدء! 🚀</h2>
+        <p>يجب الاشتراك في قناة المشروع الرسمية لتفعيل حسابك وسحب أرباحك.</p>
+        <a href="https://t.me/ADCash00" target="_blank" style="background:#24a1de; color:#fff; text-decoration:none; padding:15px; border-radius:12px; width:85%; margin-bottom:15px; display:block; font-weight:bold;">قناة ADCash (انضم هنا)</a>
+        <button onclick="checkSubscription()" class="main-btn" style="width:85%;">تحقق من الاشتراك ✅</button>
     </div>
 
     <div id="home" class="page">
         <h3>لوحة التحكم</h3>
         <div class="card">
-            <p style="color: #8892b0;">رصيدك الحالي (USDT)</p>
+            <p style="color: #8892b0; margin-bottom: 5px;">رصيدك المتوفر (USDT)</p>
             <div class="balance" id="balance">0.000</div>
         </div>
         <div class="card">
-            <div class="ad-counter">المهام اليومية المكتملة: <span id="daily-tasks">0</span> / 10</div>
-            <button class="main-btn" onclick="showPage('ads')">انتقل لصفحة المهام 🚀</button>
+            <div class="ad-counter">المهام المكتملة اليوم: <b id="daily-tasks" style="color:#fff;">0</b> / 10</div>
+            <button class="main-btn" onclick="showPage('ads')">كسب USDT الآن 📺</button>
         </div>
     </div>
 
     <div id="ads" class="page">
-        <h3>مشاهدة وربح</h3>
+        <h3>مركز الإعلانات</h3>
         <div class="card">
             <h4 id="ad-step-text">دورة المشاهدة: 1 / 3</h4>
-            <p style="font-size: 13px; color: #8892b0;">اضغط على الزر أدناه لفتح الإعلان، ثم انتظر العداد للحصول على المكافأة.</p>
+            <p style="font-size: 13px; color: #8892b0;">شاهد الإعلان بالكامل للحصول على المكافأة.</p>
             
-<button class="main-btn" id="open-ad-btn" onclick="openAndStartAd()">فتح الإعلان 📺</button>            
-            <div style="background: #0b0f1a; height: 10px; border-radius: 10px; overflow: hidden;">
+            <button class="main-btn" id="open-ad-btn" onclick="openAndStartAd()">فتح إعلان مكافأة 📺</button>
+            
+            <div class="progress-container">
                 <div id="bar" class="progress-bar"></div>
             </div>
-            <button class="main-btn" id="claim-btn" style="display:none; margin-top: 15px;" onclick="nextAd()">تخطي الإعلان (X)</button>
+            
+            <button class="main-btn" id="claim-btn" style="display:none;" onclick="nextAd()">تخطي الإعلان (X)</button>
         </div>
     </div>
 
     <div id="refs" class="page">
         <h3>نظام الإحالة</h3>
         <div class="card">
-            <p>رابطك الخاص (اربح 0.01$ عن كل شخص):</p>
+            <p style="font-size: 14px;">اربح <b>0.01 USDT</b> عن كل صديق يدخل للبوت عبر رابطك!</p>
             <input type="text" id="ref-url" readonly>
-            <button class="main-btn" onclick="copyLink()">نسخ الرابط 🔗</button>
+            <button class="main-btn" onclick="copyLink()">نسخ رابط الإحالة 🔗</button>
         </div>
         <div class="card">
-            <p>إجمالي إحالاتك: <b id="r-total">0</b></p>
+            <p>إجمالي أصدقائك: <b id="r-total" style="color:var(--primary);">0</b></p>
         </div>
     </div>
 
     <div id="withdraw" class="page">
-        <h3>سحب الأرباح (USDT)</h3>
+        <h3>سحب الأرباح</h3>
         <div class="card">
             <p>الحد الأدنى للسحب: <b style="color:var(--primary);">0.10 USDT</b></p>
-            <input type="text" id="wallet-address" placeholder="أدخل عنوان USDT (TRC20)">
-            <button class="main-btn" onclick="requestWithdraw()">طلب سحب الآن 💸</button>
-            <p style="font-size: 11px; color: #8892b0; mt: 10px;">* تأكد من اختيار شبكة TRC20 لتجنب ضياع الأموال.</p>
+            <input type="text" id="wallet-address" placeholder="عنوان محفظة USDT (TRC20)">
+            <button class="main-btn" onclick="tg.showAlert('سيتم مراجعة طلبك وإرسال الرصيد خلال 24 ساعة عند الوصول للحد الأدنى!')">طلب سحب 💸</button>
+            <p style="font-size: 11px; color: #8892b0; margin-top: 15px;">* تأكد من العنوان، العملات الرقمية لا يمكن استردادها.</p>
         </div>
     </div>
 
@@ -89,57 +103,65 @@
     </div>
 
     <script>
-        const API_URL = "https://botserv.onrender.com"; // تأكد من وضع رابطك الحقيقي
+        const API_URL = "https://botserv.onrender.com"; // رابط سيرفر Render الخاص بك
         const tg = window.Telegram.WebApp;
         const uid = tg.initDataUnsafe?.user?.id || "123456789";
-        const botUsername = "ADCash00Bot"; // ضع معرف بوتك هنا بدون @
+        const botUsername = "ADCash00bot"; // معرف البوت بدون @
         let adStep = 1;
-        let isAdOpened = false;
 
+        // 1. التحقق من الاشتراك
         async function checkSubscription() {
-            const res = await fetch(`${API_URL}/check-sub?user_id=${uid}`);
-            const data = await res.json();
-            if(data.is_member) {
-                document.getElementById('sub-overlay').style.display = 'none';
-                loadData();
-            } else {
-                tg.showAlert("❌ يرجى الاشتراك في القناة أولاً!");
-            }
+            try {
+                const res = await fetch(`${API_URL}/check-sub?user_id=${uid}`);
+                const data = await res.json();
+                if(data.is_member) {
+                    document.getElementById('sub-overlay').style.display = 'none';
+                    showPage('home');
+                    loadData();
+                } else {
+                    tg.showAlert("❌ لم نجدك في القناة، يرجى الاشتراك أولاً!");
+                }
+            } catch(e) { tg.showAlert("⚠️ عذراً، السيرفر لا يستجيب حالياً."); }
         }
 
+        // 2. تحميل بيانات المستخدم
         async function loadData() {
-            const res = await fetch(`${API_URL}/get-user-data?user_id=${uid}`);
-            const data = await res.json();
-            document.getElementById('balance').innerText = `${data.balance.toFixed(3)} USDT`;
-            document.getElementById('daily-tasks').innerText = data.tasks % 10;
-            document.getElementById('r-total').innerText = data.refs_total;
-            // تنسيق رابط الإحالة المطلوب
-            document.getElementById('ref-url').value = `https://t.me/${botUsername}?start=${uid}`;
+            try {
+                const res = await fetch(`${API_URL}/get-user-data?user_id=${uid}`);
+                const data = await res.json();
+                document.getElementById('balance').innerText = `${data.balance.toFixed(3)}`;
+                document.getElementById('daily-tasks').innerText = data.tasks % 10;
+                document.getElementById('r-total').innerText = data.refs_total;
+                document.getElementById('ref-url').value = `https://t.me/${botUsername}?start=${uid}`;
+            } catch(e) { console.error("Error loading data:", e); }
         }
 
+        // 3. التنقل بين الصفحات
         function showPage(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            
+            // تحديد العنصر النشط في القائمة
+            const indexMap = {'home':0, 'ads':1, 'refs':2, 'withdraw':3};
+            document.querySelectorAll('.nav-item')[indexMap[id]].classList.add('active');
+            
             resetAdUI();
         }
 
-      // --- تحديث دالة فتح الإعلان بالرابط الخاص بك ---
-function openAndStartAd() {
-    const monetagDirectLink = "https://omg10.com/4/10673185"; 
+        // 4. تشغيل إعلان مونيتاج
+        function openAndStartAd() {
+            // دالة Reward Interstitial التي حصلت عليها من مونيتاج
+            show_10673309().then(() => {
+                // يبدأ هذا الكود بعد إغلاق الإعلان بنجاح
+                document.getElementById('open-ad-btn').style.display = 'none';
+                startProgress();
+            }).catch((e) => {
+                tg.showAlert("⚠️ فشل تحميل الإعلان. تأكد من إغلاق AdBlock.");
+            });
+        }
 
-    // استخدام محرك تليجرام لفتح الرابط لضمان عدم ظهور صفحة بيضاء
-    if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.openLink(monetagDirectLink);
-    } else {
-        window.open(monetagDirectLink, "_blank");
-    }
-
-    // بدء العداد فوراً في الخلفية
-    document.getElementById('open-ad-btn').style.display = 'none';
-    startProgress(); 
-}
-
+        // 5. عداد المكافأة
         function startProgress() {
             let w = 0;
             const bar = document.getElementById('bar');
@@ -147,22 +169,33 @@ function openAndStartAd() {
             document.getElementById('ad-step-text').innerText = `دورة المشاهدة: ${adStep} / 3`;
             
             const timer = setInterval(() => {
-                w += 5; bar.style.width = w + '%';
-                if(w >= 100) { clearInterval(timer); claimBtn.style.display = 'block'; }
+                w += 10; // 10 ثوانٍ (لأن المستخدم شاهد إعلان مونيتاج بالفعل)
+                bar.style.width = w + '%';
+                if(w >= 100) { 
+                    clearInterval(timer); 
+                    claimBtn.style.display = 'block'; 
+                }
             }, 1000);
         }
 
+        // 6. الانتقال للإعلان التالي أو استلام المكافأة
         async function nextAd() {
             if(adStep < 3) {
-                adStep++; resetAdUI();
+                adStep++; 
+                resetAdUI();
+                tg.showAlert(`أحسنت! بقيت ${4-adStep} دورات.`);
             } else {
-                const res = await fetch(`${API_URL}/add-reward`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({user_id: uid})
-                });
-                tg.showAlert("✅ أحسنت! حصلت على المكافأة.");
-                adStep = 1; loadData(); showPage('home');
+                try {
+                    await fetch(`${API_URL}/add-reward`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({user_id: uid})
+                    });
+                    tg.showAlert("✅ مبروك! حصلت على المكافأة بنجاح.");
+                    adStep = 1; 
+                    loadData(); 
+                    showPage('home');
+                } catch(e) { tg.showAlert("⚠️ فشل في إرسال المكافأة."); }
             }
         }
 
@@ -170,19 +203,18 @@ function openAndStartAd() {
             document.getElementById('bar').style.width = '0%';
             document.getElementById('claim-btn').style.display = 'none';
             document.getElementById('open-ad-btn').style.display = 'block';
-            isAdOpened = false;
         }
 
         function copyLink() {
             const inp = document.getElementById('ref-url');
-            inp.select(); document.execCommand('copy');
-            tg.showAlert("✅ تم نسخ رابط الإحالة الخاص بك!");
+            inp.select();
+            document.execCommand('copy');
+            tg.showAlert("✅ تم نسخ رابط الإحالة بنجاح!");
         }
 
-        tg.ready(); tg.expand();
+        // تهيئة التطبيق
+        tg.ready();
+        tg.expand();
     </script>
 </body>
 </html>
-
-
-
