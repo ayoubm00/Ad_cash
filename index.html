@@ -150,16 +150,16 @@
         }
 
         // 4. تشغيل إعلان مونيتاج
-        function openAndStartAd() {
-            // دالة Reward Interstitial التي حصلت عليها من مونيتاج
-            show_10673309().then(() => {
-                // يبدأ هذا الكود بعد إغلاق الإعلان بنجاح
-                document.getElementById('open-ad-btn').style.display = 'none';
-                startProgress();
-            }).catch((e) => {
-                tg.showAlert("⚠️ فشل تحميل الإعلان. تأكد من إغلاق AdBlock.");
-            });
-        }
+     function openAndStartAd() {
+    show_10673309().then(() => {
+        document.getElementById('open-ad-btn').style.display = 'none';
+        startProgress();
+    }).catch((e) => {
+        // سيظهر لك هنا نص الخطأ الحقيقي
+        console.error(e);
+        tg.showAlert("عذراً، لا يوجد إعلان متاح حالياً. حاول مجدداً بعد قليل.");
+    });
+}
 
         // 5. عداد المكافأة
         function startProgress() {
@@ -218,3 +218,4 @@
     </script>
 </body>
 </html>
+
