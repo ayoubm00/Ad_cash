@@ -17,9 +17,9 @@
         .page-section.active { display: block; }
         .pulse { animation: pulse 2s infinite; }
         @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
-        .withdraw-item { transition: all 0.3s ease; }
-        .withdraw-item:hover { transform: translateX(-5px); }
         .loading { opacity: 0.7; pointer-events: none; }
+        .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 8px; height: 60px; }
+        @keyframes loading { 0% {background-position: 200% 0;} 100% {background-position: -200% 0;} }
     </style>
 </head>
 <body class="h-screen flex flex-col">
@@ -43,8 +43,24 @@
                 <p class="text-sm">💰 كل مهمة تمنحك <span class="font-bold text-yellow-400">0.01 USDT</span> وتتطلب مشاهدة 3 إعلانات</p>
                 <p class="text-xs text-slate-400 mt-2">⏰ المهام تتجدد كل 24 ساعة</p>
             </div>
-            <div id="tasks-container" class="space-y-3">
+            
+            <!-- شاشة التحميل -->
+            <div id="tasks-loading" class="space-y-3">
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+            </div>
+            
+            <!-- حاوية المهام -->
+            <div id="tasks-container" class="space-y-3 hidden">
                 <!-- سيتم تعبئتها عبر JavaScript -->
+            </div>
+            
+            <!-- رسالة خطأ -->
+            <div id="tasks-error" class="hidden text-center py-8">
+                <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-3"></i>
+                <p class="text-red-400">فشل تحميل المهام</p>
+                <button onclick="init()" class="mt-3 bg-indigo-600 px-4 py-2 rounded-lg text-sm">إعادة المحاولة</button>
             </div>
         </div>
 
@@ -87,7 +103,7 @@
             </div>
         </div>
 
-        <!-- صفحة المحفظة والسحب -->
+        <!-- صفحة المحفظة والسحب (باستخدام Binance Pay ID) -->
         <div id="wallet-page" class="page-section">
             <div class="bg-gradient-to-br from-indigo-900 to-slate-800 p-6 rounded-2xl mb-6 shadow-2xl border border-indigo-500/20">
                 <p class="text-indigo-300 text-sm">الرصيد القابل للسحب</p>
@@ -100,11 +116,15 @@
                     <input type="number" id="withdraw-amount" step="0.01" min="0.5" placeholder="0.50" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
                 </div>
                 <div>
-                    <label class="text-xs text-slate-400 block mb-1 mr-2">عنوان محفظة USDT (TRC20)</label>
-                    <input type="text" id="wallet-address" placeholder="أدخل عنوان محفظتك" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
+                    <label class="text-xs text-slate-400 block mb-1 mr-2">Binance Pay ID</label>
+                    <input type="text" id="binance-pay-id" placeholder="أدخل Binance Pay ID الخاص بك" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
+                </div>
+                <div class="text-xs text-slate-400 mr-2 mb-2">
+                    <i class="fas fa-info-circle text-indigo-400 ml-1"></i>
+                    كيف تجد Binance Pay ID؟ الإعدادات > Binance Pay > عرض معرف الدفع
                 </div>
                 <button onclick="handleWithdraw()" class="w-full bg-indigo-600 py-4 rounded-xl font-bold text-lg shadow-lg shadow-indigo-500/20 active:scale-95 transition hover:bg-indigo-700">
-                    طلب السحب
+                    طلب السحب عبر Binance Pay
                 </button>
             </div>
 
@@ -154,13 +174,37 @@
 
         // تهيئة التطبيق
         async function init() {
+            // إظهار شاشة التحميل
+            document.getElementById('tasks-loading').classList.remove('hidden');
+            document.getElementById('tasks-container').classList.add('hidden');
+            document.getElementById('tasks-error').classList.add('hidden');
+            
             try {
+                console.log('جاري الاتصال بالخادم:', API_URL);
+                
                 const response = await fetch(`${API_URL}/api/user/${userId}${startParam ? `?ref=${startParam}` : ''}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
+                console.log('تم استلام البيانات:', data);
+                
                 updateUI(data);
                 startRealTimeUpdates();
+                
+                // إخفاء التحميل وإظهار المهام
+                document.getElementById('tasks-loading').classList.add('hidden');
+                document.getElementById('tasks-container').classList.remove('hidden');
+                
             } catch (error) {
                 console.error('Init error:', error);
+                
+                // إخفاء التحميل وإظهار رسالة الخطأ
+                document.getElementById('tasks-loading').classList.add('hidden');
+                document.getElementById('tasks-error').classList.remove('hidden');
+                
                 tg.showAlert("❌ فشل الاتصال بالخادم. تأكد من اتصالك بالإنترنت.");
             }
         }
@@ -169,9 +213,12 @@
         function updateUI(data) {
             document.getElementById('balance').innerText = data.balance.toFixed(4);
             document.getElementById('withdraw-balance-display').innerText = data.balance.toFixed(4);
-            document.getElementById('total-refs').innerText = data.referrals_count;
+            document.getElementById('total-refs').innerText = data.referrals_count || 0;
             document.getElementById('ref-earnings').innerText = (data.referrals_earnings || 0).toFixed(2);
-            document.getElementById('ref-link').value = `https://t.me/${tg.initDataUnsafe?.user?.username || 'ADCashPro_bot'}?start=${userId}`;
+            
+            // إنشاء رابط الإحالة
+            const botUsername = tg.initDataUnsafe?.user?.username || 'ADCashPro_bot';
+            document.getElementById('ref-link').value = `https://t.me/${botUsername}?start=${userId}`;
             
             userTasksStatus = data.tasks || [];
             renderTasks();
@@ -182,6 +229,11 @@
         function renderTasks() {
             const container = document.getElementById('tasks-container');
             container.innerHTML = '';
+
+            if (!userTasksStatus || userTasksStatus.length === 0) {
+                container.innerHTML = '<p class="text-center text-slate-400 py-8">لا توجد مهام متاحة حالياً</p>';
+                return;
+            }
 
             for (let i = 1; i <= 10; i++) {
                 const task = userTasksStatus.find(t => t.task_id === i) || { completed: false, cooldown_until: null };
@@ -311,9 +363,10 @@
                 const date = new Date(w.created_at).toLocaleDateString('ar-EG');
                 
                 return `
-                    <div class="withdraw-item bg-slate-800/50 p-3 rounded-lg border border-slate-700 flex justify-between items-center">
+                    <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700 flex justify-between items-center">
                         <div>
                             <p class="font-bold text-yellow-400">${w.amount} USDT</p>
+                            <p class="text-xs text-slate-400">Binance Pay: ${w.binance_pay_id}</p>
                             <p class="text-xs text-slate-400">${date}</p>
                         </div>
                         <span class="${statusClass} text-sm">${statusText}</span>
@@ -322,18 +375,24 @@
             }).join('');
         }
 
-        // معالجة طلب السحب
+        // معالجة طلب السحب (Binance Pay)
         async function handleWithdraw() {
             const amount = parseFloat(document.getElementById('withdraw-amount').value);
-            const walletAddress = document.getElementById('wallet-address').value.trim();
+            const binancePayId = document.getElementById('binance-pay-id').value.trim();
             
             if (isNaN(amount) || amount < 0.5) {
                 tg.showAlert("❌ الحد الأدنى للسحب هو 0.5 USDT");
                 return;
             }
             
-            if (walletAddress.length < 10) {
-                tg.showAlert("❌ يرجى إدخال عنوان محفظة صحيح");
+            if (!binancePayId || binancePayId.length < 5) {
+                tg.showAlert("❌ يرجى إدخال Binance Pay ID صحيح");
+                return;
+            }
+
+            // التحقق من أن Binance Pay ID يتكون من أرقام فقط
+            if (!/^\d+$/.test(binancePayId)) {
+                tg.showAlert("❌ Binance Pay ID يجب أن يكون أرقاماً فقط");
                 return;
             }
 
@@ -344,16 +403,16 @@
                     body: JSON.stringify({
                         user_id: userId,
                         amount: amount,
-                        wallet_address: walletAddress
+                        binance_pay_id: binancePayId
                     })
                 });
                 
                 const data = await response.json();
                 
                 if (data.success) {
-                    tg.showAlert("✅ تم إرسال طلب السحب بنجاح!");
+                    tg.showAlert("✅ تم إرسال طلب السحب بنجاح! سنقوم بالدفع خلال 24 ساعة عبر Binance Pay.");
                     document.getElementById('withdraw-amount').value = '';
-                    document.getElementById('wallet-address').value = '';
+                    document.getElementById('binance-pay-id').value = '';
                     await refreshUserData();
                 } else {
                     tg.showAlert(data.message || "❌ فشل طلب السحب");
@@ -405,4 +464,4 @@
         init();
     </script>
 </body>
-    </html>
+</html>
