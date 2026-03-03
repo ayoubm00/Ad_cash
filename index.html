@@ -3,167 +3,406 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADCash - Watch & Earn</title>
+    <title>ADCash Pro - v2.0</title>
     <script src='//libtl.com/sdk.js' data-zone='10673309' data-sdk='show_10673309'></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #0f172a; color: #fff; user-select: none; }
-        .nav-item.active { color: #6366f1; }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #fff; }
+        .nav-item.active { color: #6366f1; border-top: 3px solid #6366f1; }
+        .nav-item { color: #64748b; }
         .page-section { display: none; }
         .page-section.active { display: block; }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
+        .withdraw-item { transition: all 0.3s ease; }
+        .withdraw-item:hover { transform: translateX(-5px); }
+        .loading { opacity: 0.7; pointer-events: none; }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
+<body class="h-screen flex flex-col">
 
-    <header class="flex justify-between items-center p-4 bg-slate-800/80 backdrop-blur border-b border-slate-700">
-        <div class="flex items-center">
-            <div class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center ml-3 shadow-lg">
-                <i class="fas fa-coins text-white"></i>
-            </div>
+    <header class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center shadow-xl">
+        <div class="flex items-center gap-3">
+            <div class="bg-yellow-500 p-2 rounded-lg"><i class="fas fa-wallet text-white"></i></div>
             <div>
-                <p class="text-[10px] text-slate-400 uppercase">الرصيد الحالي</p>
-                <p class="font-bold text-white leading-none text-xl" id="balance">0.000</p>
+                <p class="text-[10px] text-slate-400">رصيدك</p>
+                <p class="font-bold text-xl text-yellow-400" id="balance">0.0000</p>
             </div>
         </div>
-        <div class="text-indigo-400 font-bold text-lg">ADCash</div>
+        <div class="text-indigo-500 font-black text-xl italic">AD-CASH</div>
     </header>
 
     <main class="flex-1 overflow-y-auto p-4 pb-24">
+        
+        <!-- الصفحة الرئيسية - المهام -->
         <div id="home-page" class="page-section active">
-            <div id="ad-card" onclick="startAdCycle()" class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-6 mb-6 relative overflow-hidden shadow-lg active:scale-95 transition cursor-pointer">
-                <div class="relative z-10">
-                    <h2 class="text-2xl font-bold text-white mb-1"><i class="fas fa-play-circle ml-2"></i>شاهد واربح</h2>
-                    <p class="text-blue-100 text-sm">شاهد 3 إعلانات للحصول على المكافأة!</p>
-                    <div class="mt-4 inline-block bg-white/20 px-4 py-1 rounded-full text-xs font-bold backdrop-blur-sm">
-                        المكافأة: 0.005 USDT
+            <div class="mb-4 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 p-4 rounded-lg border border-indigo-500/30">
+                <p class="text-sm">💰 كل مهمة تمنحك <span class="font-bold text-yellow-400">0.01 USDT</span> وتتطلب مشاهدة 3 إعلانات</p>
+                <p class="text-xs text-slate-400 mt-2">⏰ المهام تتجدد كل 24 ساعة</p>
+            </div>
+            <div id="tasks-container" class="space-y-3">
+                <!-- سيتم تعبئتها عبر JavaScript -->
+            </div>
+        </div>
+
+        <!-- صفحة الإحالة -->
+        <div id="refer-page" class="page-section">
+            <div class="text-center py-4">
+                <i class="fas fa-gift text-6xl text-indigo-500 mb-4"></i>
+                <h2 class="text-2xl font-bold">نظام الإحالة</h2>
+                <p class="text-slate-400 text-sm mt-2">ادعو أصدقائك واربح مع كل مهمة يكملونها</p>
+                
+                <div class="mt-6 bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <p class="text-xs text-slate-400 mb-2">رابط الدعوة الخاص بك</p>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="ref-link" class="w-full bg-slate-700 text-indigo-300 text-sm p-3 rounded-lg border border-slate-600" readonly>
+                        <button onclick="copyRef()" class="bg-indigo-600 p-3 rounded-lg hover:bg-indigo-700 transition">
+                            <i class="fas fa-copy"></i>
+                        </button>
                     </div>
                 </div>
-                <i class="fas fa-video absolute -bottom-4 -left-4 text-8xl text-white opacity-10"></i>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-center">
-                    <p class="text-slate-400 text-xs">إجمالي المهام</p>
-                    <p class="text-xl font-bold text-green-400" id="total-tasks">0</p>
+                
+                <div class="mt-6 grid grid-cols-2 gap-4">
+                    <div class="bg-slate-800 p-4 rounded-xl text-center">
+                        <p class="text-[10px] text-slate-400">عدد الإحالات</p>
+                        <p id="total-refs" class="text-xl font-bold">0</p>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-xl text-center">
+                        <p class="text-[10px] text-slate-400">أرباح الإحالة</p>
+                        <p id="ref-earnings" class="text-xl font-bold text-green-400">0.00</p>
+                    </div>
                 </div>
-                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-center">
-                    <p class="text-slate-400 text-xs">الإحالات</p>
-                    <p class="text-xl font-bold text-blue-400" id="total-refs">0</p>
+
+                <div class="mt-6 text-right">
+                    <h3 class="font-bold mb-3">كيف يعمل نظام الإحالة؟</h3>
+                    <div class="bg-slate-800/50 p-3 rounded-lg text-sm space-y-2">
+                        <p>• تحصل على <span class="text-yellow-400">0.01 USDT</span> عن كل صديق يكمل جميع المهام العشرة</p>
+                        <p>• يمكنك دعوة عدد غير محدود من الأصدقاء</p>
+                        <p>• يتم إضافة الأرباح فور إكمال صديقك للمهام</p>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- صفحة المحفظة والسحب -->
         <div id="wallet-page" class="page-section">
-            <div class="bg-slate-800 rounded-2xl p-6 mb-6 text-center border border-slate-700">
-                <p class="text-slate-400 text-sm mb-1">قابل للسحب</p>
-                <h1 class="text-4xl font-bold text-yellow-400 mb-2" id="wallet-balance-display">0.000</h1>
-                <p class="text-xs text-green-400 font-bold bg-green-400/10 inline-block px-3 py-1 rounded-full">الحد الأدنى: 5 USDT</p>
+            <div class="bg-gradient-to-br from-indigo-900 to-slate-800 p-6 rounded-2xl mb-6 shadow-2xl border border-indigo-500/20">
+                <p class="text-indigo-300 text-sm">الرصيد القابل للسحب</p>
+                <h1 class="text-4xl font-black text-white mt-2" id="withdraw-balance-display">0.0000 <span class="text-sm text-yellow-400 font-normal">USDT</span></h1>
             </div>
-            <div class="bg-slate-800 rounded-xl p-4">
-                <h3 class="font-bold mb-4 text-indigo-400">طلب سحب</h3>
-                <div class="space-y-3">
-                    <input type="text" id="wallet-addr" placeholder="عنوان محفظة USDT (TRC20)" class="w-full bg-slate-700 border-none rounded-lg p-3 text-white text-right outline-none">
-                    <button onclick="saveWallet()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition">حفظ العنوان</button>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1 mr-2">مبلغ السحب (الحد الأدنى 0.5 USDT)</label>
+                    <input type="number" id="withdraw-amount" step="0.01" min="0.5" placeholder="0.50" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1 mr-2">عنوان محفظة USDT (TRC20)</label>
+                    <input type="text" id="wallet-address" placeholder="أدخل عنوان محفظتك" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
+                </div>
+                <button onclick="handleWithdraw()" class="w-full bg-indigo-600 py-4 rounded-xl font-bold text-lg shadow-lg shadow-indigo-500/20 active:scale-95 transition hover:bg-indigo-700">
+                    طلب السحب
+                </button>
+            </div>
+
+            <!-- سجل السحوبات -->
+            <div class="mt-8">
+                <h3 class="font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-history text-indigo-400"></i>
+                    سجل السحوبات
+                </h3>
+                <div id="withdrawals-history" class="space-y-2">
+                    <!-- سيتم تعبئتها عبر JavaScript -->
                 </div>
             </div>
         </div>
 
-        <div id="refer-page" class="page-section text-center">
-            <i class="fas fa-users text-6xl text-indigo-500 my-6"></i>
-            <h2 class="text-2xl font-bold text-white mb-2">دعوة الأصدقاء</h2>
-            <p class="text-slate-400 mb-6 px-4">اربح <span class="text-yellow-400">0.01 USDT</span> عن كل تسجيل.</p>
-            <div class="bg-slate-800 p-4 rounded-xl mx-4 border border-dashed border-slate-600">
-                <p id="ref-link" class="text-sm text-indigo-300 truncate mb-3 italic">t.me/ADCash00bot?start=id</p>
-                <button onclick="copyRef()" class="bg-indigo-600 px-6 py-2 rounded-lg text-sm font-bold"><i class="fas fa-copy ml-2"></i>نسخ الرابط</button>
-            </div>
-        </div>
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around p-2 pb-6 z-30">
-        <button onclick="showPage('home-page', this)" class="nav-item active flex flex-col items-center w-1/3 text-slate-400">
-            <i class="fas fa-home text-xl mb-1"></i><span class="text-[10px]">الرئيسية</span>
+    <!-- شريط التنقل السفلي -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around items-center h-20 px-4">
+        <button onclick="showPage('home-page', this)" class="nav-item active flex flex-col items-center gap-1 transition-all">
+            <i class="fas fa-th-large text-xl"></i>
+            <span class="text-[10px]">المهام</span>
         </button>
-        <button onclick="showPage('wallet-page', this)" class="nav-item flex flex-col items-center w-1/3 text-slate-400">
-            <i class="fas fa-wallet text-xl mb-1"></i><span class="text-[10px]">المحفظة</span>
+        <button onclick="showPage('refer-page', this)" class="nav-item flex flex-col items-center gap-1 transition-all">
+            <i class="fas fa-user-plus text-xl"></i>
+            <span class="text-[10px]">الإحالة</span>
         </button>
-        <button onclick="showPage('refer-page', this)" class="nav-item flex flex-col items-center w-1/3 text-slate-400">
-            <i class="fas fa-share-alt text-xl mb-1"></i><span class="text-[10px]">الإحالة</span>
+        <button onclick="showPage('wallet-page', this)" class="nav-item flex flex-col items-center gap-1 transition-all">
+            <i class="fas fa-wallet text-xl"></i>
+            <span class="text-[10px]">السحب</span>
         </button>
     </nav>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        const API_URL = "https://botserv.onrender.com";
-        const userId = tg.initDataUnsafe?.user?.id || "123456789";
-        let adCount = 0;
+        tg.enableClosingConfirmation();
 
-        async function loadData() {
+        // استخدم Render URL - قم بتغييره إلى رابط السيرفر الخاص بك
+        const API_URL = "https://your-app-name.onrender.com";
+        const userId = tg.initDataUnsafe?.user?.id?.toString() || "DEBUG_USER";
+        const startParam = tg.initDataUnsafe?.start_param || null;
+
+        let userTasksStatus = [];
+        let currentAdProgress = { taskId: null, count: 0 };
+        let refreshInterval;
+
+        // تهيئة التطبيق
+        async function init() {
             try {
-                const res = await fetch(`${API_URL}/get-user-data?user_id=${userId}`);
-                const data = await res.json();
-                document.getElementById('balance').innerText = data.balance.toFixed(3);
-                document.getElementById('wallet-balance-display').innerText = data.balance.toFixed(3);
-                document.getElementById('total-tasks').innerText = data.tasks_total;
-                document.getElementById('total-refs').innerText = data.refs_count;
-                document.getElementById('wallet-addr').value = data.wallet_address || "";
-                document.getElementById('ref-link').innerText = `https://t.me/ADCash00bot?start=${userId}`;
-            } catch (e) { console.error("API error"); }
-        }
-
-        function showPage(pageId, btn) {
-            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            btn.classList.add('active');
-        }
-
-        // تم تصحيح الدالة لتعمل مع رقم الزون الخاص بك
-        function startAdCycle() {
-            if (typeof show_10673309 === 'function') {
-                show_10673309().then(() => {
-                    adCount++;
-                    if (adCount >= 3) {
-                        completeTask();
-                        adCount = 0;
-                    } else {
-                        tg.showAlert(`✅ شاهدت ${adCount} من أصل 3 إعلانات.`);
-                    }
-                }).catch(e => tg.showAlert("فشل الإعلان، جرب لاحقاً."));
-            } else {
-                tg.showAlert("جاري تحميل الإعلانات... انتظر ثانية");
+                const response = await fetch(`${API_URL}/api/user/${userId}${startParam ? `?ref=${startParam}` : ''}`);
+                const data = await response.json();
+                updateUI(data);
+                startRealTimeUpdates();
+            } catch (error) {
+                console.error('Init error:', error);
+                tg.showAlert("❌ فشل الاتصال بالخادم. تأكد من اتصالك بالإنترنت.");
             }
         }
 
-        async function completeTask() {
-            await fetch(`${API_URL}/add-reward`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ user_id: userId })
-            });
-            tg.showConfirm("🎉 مبروك! حصلت على المكافأة");
-            loadData();
+        // تحديث الواجهة
+        function updateUI(data) {
+            document.getElementById('balance').innerText = data.balance.toFixed(4);
+            document.getElementById('withdraw-balance-display').innerText = data.balance.toFixed(4);
+            document.getElementById('total-refs').innerText = data.referrals_count;
+            document.getElementById('ref-earnings').innerText = (data.referrals_earnings || 0).toFixed(2);
+            document.getElementById('ref-link').value = `https://t.me/${tg.initDataUnsafe?.user?.username || 'ADCashPro_bot'}?start=${userId}`;
+            
+            userTasksStatus = data.tasks || [];
+            renderTasks();
+            renderWithdrawalsHistory(data.withdrawals || []);
         }
 
-        async function saveWallet() {
-            const addr = document.getElementById('wallet-addr').value;
-            await fetch(`${API_URL}/save-wallet`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ user_id: userId, address: addr })
-            });
-            tg.showAlert("✅ تم حفظ عنوان المحفظة");
+        // عرض المهام
+        function renderTasks() {
+            const container = document.getElementById('tasks-container');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= 10; i++) {
+                const task = userTasksStatus.find(t => t.task_id === i) || { completed: false, cooldown_until: null };
+                const isCompleted = task.completed;
+                const cooldownUntil = task.cooldown_until ? new Date(task.cooldown_until) : null;
+                const now = new Date();
+                const isInCooldown = cooldownUntil && cooldownUntil > now;
+                
+                let timeRemaining = '';
+                if (isInCooldown) {
+                    const diffMs = cooldownUntil - now;
+                    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    timeRemaining = `${hours}:${minutes.toString().padStart(2, '0')}`;
+                }
+                
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border ${isCompleted ? 'bg-green-900/20 border-green-500/30' : isInCooldown ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-800 border-indigo-500/30'} flex justify-between items-center`;
+                
+                let actionBtn = '';
+                if (isCompleted) {
+                    actionBtn = `<span class="text-green-400 text-sm"><i class="fas fa-check-circle ml-1"></i>مكتملة</span>`;
+                } else if (isInCooldown) {
+                    actionBtn = `<span class="text-slate-500 text-sm font-mono">⏰ ${timeRemaining}</span>`;
+                } else {
+                    const isProcessing = currentAdProgress.taskId === i;
+                    let btnLabel, btnClass;
+                    
+                    if (isProcessing) {
+                        if (currentAdProgress.count >= 3) {
+                            btnLabel = 'المطالبة 🎁';
+                            btnClass = 'bg-yellow-500 text-black pulse';
+                        } else {
+                            btnLabel = `إعلان ${currentAdProgress.count}/3`;
+                            btnClass = 'bg-indigo-600';
+                        }
+                    } else {
+                        btnLabel = 'ابدأ المهمة';
+                        btnClass = 'bg-indigo-600';
+                    }
+                    
+                    actionBtn = `<button onclick="handleTaskClick(${i})" class="${btnClass} px-4 py-2 rounded-lg text-xs font-bold transition-all hover:opacity-90">${btnLabel}</button>`;
+                }
+
+                card.innerHTML = `
+                    <div>
+                        <p class="text-sm font-bold">المهمة ${i}</p>
+                        <p class="text-[10px] text-slate-400">➕ 0.01 USDT</p>
+                    </div>
+                    ${actionBtn}
+                `;
+                
+                container.appendChild(card);
+            }
         }
 
+        // معالجة النقر على المهمة
+        async function handleTaskClick(taskId) {
+            if (currentAdProgress.taskId === taskId && currentAdProgress.count >= 3) {
+                try {
+                    const response = await fetch(`${API_URL}/api/claim`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ user_id: userId, task_id: taskId })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        currentAdProgress = { taskId: null, count: 0 };
+                        tg.showAlert("✅ تمت إضافة 0.01 USDT إلى رصيدك!");
+                        await refreshUserData();
+                    } else {
+                        tg.showAlert(data.message || "حدث خطأ، حاول مرة أخرى");
+                    }
+                } catch (error) {
+                    tg.showAlert("❌ فشل الاتصال بالخادم");
+                }
+                return;
+            }
+
+            if (typeof show_10673309 === 'function') {
+                try {
+                    await show_10673309();
+                    
+                    if (currentAdProgress.taskId !== taskId) {
+                        currentAdProgress = { taskId: taskId, count: 1 };
+                    } else {
+                        currentAdProgress.count++;
+                    }
+                    
+                    renderTasks();
+                    
+                    if (currentAdProgress.count >= 3) {
+                        tg.showAlert("🎉 أكملت 3 إعلانات! اضغط على زر المطالبة");
+                    }
+                } catch (error) {
+                    tg.showAlert("❌ فشل تشغيل الإعلان");
+                }
+            } else {
+                tg.showAlert("❌ مكتبة الإعلانات غير متوفرة");
+            }
+        }
+
+        // عرض سجل السحوبات
+        function renderWithdrawalsHistory(withdrawals) {
+            const container = document.getElementById('withdrawals-history');
+            
+            if (!withdrawals || withdrawals.length === 0) {
+                container.innerHTML = '<p class="text-center text-slate-500 py-4">لا توجد سحوبات سابقة</p>';
+                return;
+            }
+            
+            container.innerHTML = withdrawals.map(w => {
+                const statusClass = {
+                    'pending': 'text-yellow-400',
+                    'completed': 'text-green-400',
+                    'rejected': 'text-red-400'
+                }[w.status] || 'text-slate-400';
+                
+                const statusText = {
+                    'pending': 'قيد الانتظار',
+                    'completed': 'تم الدفع',
+                    'rejected': 'مرفوض'
+                }[w.status] || w.status;
+                
+                const date = new Date(w.created_at).toLocaleDateString('ar-EG');
+                
+                return `
+                    <div class="withdraw-item bg-slate-800/50 p-3 rounded-lg border border-slate-700 flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-yellow-400">${w.amount} USDT</p>
+                            <p class="text-xs text-slate-400">${date}</p>
+                        </div>
+                        <span class="${statusClass} text-sm">${statusText}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // معالجة طلب السحب
+        async function handleWithdraw() {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            const walletAddress = document.getElementById('wallet-address').value.trim();
+            
+            if (isNaN(amount) || amount < 0.5) {
+                tg.showAlert("❌ الحد الأدنى للسحب هو 0.5 USDT");
+                return;
+            }
+            
+            if (walletAddress.length < 10) {
+                tg.showAlert("❌ يرجى إدخال عنوان محفظة صحيح");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/withdraw`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user_id: userId,
+                        amount: amount,
+                        wallet_address: walletAddress
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    tg.showAlert("✅ تم إرسال طلب السحب بنجاح!");
+                    document.getElementById('withdraw-amount').value = '';
+                    document.getElementById('wallet-address').value = '';
+                    await refreshUserData();
+                } else {
+                    tg.showAlert(data.message || "❌ فشل طلب السحب");
+                }
+            } catch (error) {
+                tg.showAlert("❌ فشل الاتصال بالخادم");
+            }
+        }
+
+        // نسخ رابط الإحالة
         function copyRef() {
-            const link = document.getElementById('ref-link').innerText;
-            navigator.clipboard.writeText(link);
-            tg.showAlert("📋 تم نسخ الرابط");
+            const link = document.getElementById('ref-link');
+            link.select();
+            navigator.clipboard.writeText(link.value);
+            tg.showAlert("📋 تم نسخ الرابط!");
         }
 
-        loadData();
+        // تحديث بيانات المستخدم
+        async function refreshUserData() {
+            try {
+                const response = await fetch(`${API_URL}/api/user/${userId}`);
+                const data = await response.json();
+                updateUI(data);
+            } catch (error) {
+                console.error('Refresh error:', error);
+            }
+        }
+
+        // تحديث实时
+        function startRealTimeUpdates() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(refreshUserData, 30000); // كل 30 ثانية
+        }
+
+        // تغيير الصفحة
+        function showPage(pageId, btn) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            btn.classList.add('active');
+            
+            if (pageId === 'wallet-page') {
+                refreshUserData(); // تحديث بيانات السحب عند فتح الصفحة
+            }
+        }
+
+        // بدء التطبيق
+        init();
     </script>
 </body>
-</html>
+    </html>
