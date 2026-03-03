@@ -17,7 +17,7 @@
         .page-section.active { display: block; }
         .pulse { animation: pulse 2s infinite; }
         @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
-        .loading { opacity: 0.7; pointer-events: none; }
+        .progress-bar { transition: width 0.5s ease; }
         .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 8px; height: 60px; }
         @keyframes loading { 0% {background-position: 200% 0;} 100% {background-position: -200% 0;} }
     </style>
@@ -40,8 +40,20 @@
         <!-- الصفحة الرئيسية - المهام -->
         <div id="home-page" class="page-section active">
             <div class="mb-4 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 p-4 rounded-lg border border-indigo-500/30">
-                <p class="text-sm">💰 كل مهمة تمنحك <span class="font-bold text-yellow-400">0.01 USDT</span> وتتطلب مشاهدة 3 إعلانات</p>
-                <p class="text-xs text-slate-400 mt-2">⏰ المهام تتجدد كل 24 ساعة</p>
+                <p class="text-sm">💰 عند إكمال جميع المهام العشرة تحصل على <span class="font-bold text-yellow-400">0.01 USDT</span></p>
+                <p class="text-xs text-slate-400 mt-2">⏰ كل مهمة تحتاج 3 إعلانات - المهام تتجدد كل 24 ساعة</p>
+            </div>
+
+            <!-- شريط التقدم -->
+            <div id="progress-section" class="mb-4 bg-slate-800 p-4 rounded-lg border border-slate-700 hidden">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm">تقدم المهام</span>
+                    <span class="text-sm text-yellow-400" id="tasks-progress">0/10</span>
+                </div>
+                <div class="w-full bg-slate-700 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
+                </div>
+                <p class="text-xs text-slate-400 mt-2" id="progress-message"></p>
             </div>
             
             <!-- شاشة التحميل -->
@@ -103,7 +115,7 @@
             </div>
         </div>
 
-        <!-- صفحة المحفظة والسحب (باستخدام Binance Pay ID) -->
+        <!-- صفحة المحفظة والسحب -->
         <div id="wallet-page" class="page-section">
             <div class="bg-gradient-to-br from-indigo-900 to-slate-800 p-6 rounded-2xl mb-6 shadow-2xl border border-indigo-500/20">
                 <p class="text-indigo-300 text-sm">الرصيد القابل للسحب</p>
@@ -164,7 +176,7 @@
         tg.enableClosingConfirmation();
 
         // استخدم Render URL - قم بتغييره إلى رابط السيرفر الخاص بك
-        const API_URL = "https://botserv.onrender.com";
+        const API_URL = "https://botserv.onrender.com"; // للتجربة المحلية
         const userId = tg.initDataUnsafe?.user?.id?.toString() || "DEBUG_USER";
         const startParam = tg.initDataUnsafe?.start_param || null;
 
@@ -178,6 +190,7 @@
             document.getElementById('tasks-loading').classList.remove('hidden');
             document.getElementById('tasks-container').classList.add('hidden');
             document.getElementById('tasks-error').classList.add('hidden');
+            document.getElementById('progress-section').classList.add('hidden');
             
             try {
                 console.log('جاري الاتصال بالخادم:', API_URL);
@@ -221,6 +234,24 @@
             document.getElementById('ref-link').value = `https://t.me/${botUsername}?start=${userId}`;
             
             userTasksStatus = data.tasks || [];
+            
+            // حساب عدد المهام المكتملة
+            const completedTasks = userTasksStatus.filter(t => t.completed).length;
+            
+            // إظهار شريط التقدم إذا كان هناك مهام مكتملة
+            if (completedTasks > 0) {
+                document.getElementById('progress-section').classList.remove('hidden');
+                document.getElementById('tasks-progress').innerText = `${completedTasks}/10`;
+                document.getElementById('progress-bar').style.width = `${(completedTasks / 10) * 100}%`;
+                
+                if (completedTasks === 10) {
+                    document.getElementById('progress-message').innerText = '🎉 تهانينا! أكملت جميع المهام وربحت 0.01 USDT';
+                } else {
+                    const remaining = 10 - completedTasks;
+                    document.getElementById('progress-message').innerText = `⏳ متبقي ${remaining} مهام للفوز بـ 0.01 USDT`;
+                }
+            }
+            
             renderTasks();
             renderWithdrawalsHistory(data.withdrawals || []);
         }
@@ -234,6 +265,10 @@
                 container.innerHTML = '<p class="text-center text-slate-400 py-8">لا توجد مهام متاحة حالياً</p>';
                 return;
             }
+
+            // حساب عدد المهام المكتملة
+            const completedCount = userTasksStatus.filter(t => t.completed).length;
+            const allCompleted = completedCount === 10;
 
             for (let i = 1; i <= 10; i++) {
                 const task = userTasksStatus.find(t => t.task_id === i) || { completed: false, cooldown_until: null };
@@ -264,14 +299,14 @@
                     
                     if (isProcessing) {
                         if (currentAdProgress.count >= 3) {
-                            btnLabel = 'المطالبة 🎁';
+                            btnLabel = 'تأكيد المشاهدة ✅';
                             btnClass = 'bg-yellow-500 text-black pulse';
                         } else {
-                            btnLabel = `إعلان ${currentAdProgress.count}/3`;
+                            btnLabel = `شاهد إعلان ${currentAdProgress.count}/3`;
                             btnClass = 'bg-indigo-600';
                         }
                     } else {
-                        btnLabel = 'ابدأ المهمة';
+                        btnLabel = 'شاهد إعلان';
                         btnClass = 'bg-indigo-600';
                     }
                     
@@ -281,20 +316,34 @@
                 card.innerHTML = `
                     <div>
                         <p class="text-sm font-bold">المهمة ${i}</p>
-                        <p class="text-[10px] text-slate-400">➕ 0.01 USDT</p>
+                        <p class="text-[10px] text-slate-400">مشاهدة 3 إعلانات</p>
                     </div>
                     ${actionBtn}
                 `;
                 
                 container.appendChild(card);
             }
+
+            // إذا كانت جميع المهام مكتملة، أضف رسالة
+            if (allCompleted) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'mt-4 bg-green-600/20 p-4 rounded-lg border border-green-500/30 text-center';
+                messageDiv.innerHTML = `
+                    <i class="fas fa-trophy text-3xl text-yellow-400 mb-2"></i>
+                    <p class="text-green-400">🎉 تهانينا! أكملت جميع المهام</p>
+                    <p class="text-sm text-slate-300">تمت إضافة 0.01 USDT إلى رصيدك</p>
+                    <p class="text-xs text-slate-400 mt-2">عد غداً للمهام الجديدة</p>
+                `;
+                container.appendChild(messageDiv);
+            }
         }
 
         // معالجة النقر على المهمة
         async function handleTaskClick(taskId) {
+            // إذا كان المستخدم قد أكمل 3 إعلانات لهذه المهمة
             if (currentAdProgress.taskId === taskId && currentAdProgress.count >= 3) {
                 try {
-                    const response = await fetch(`${API_URL}/api/claim`, {
+                    const response = await fetch(`${API_URL}/api/complete-task`, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ user_id: userId, task_id: taskId })
@@ -304,7 +353,16 @@
                     
                     if (data.success) {
                         currentAdProgress = { taskId: null, count: 0 };
-                        tg.showAlert("✅ تمت إضافة 0.01 USDT إلى رصيدك!");
+                        
+                        // التحقق مما إذا كانت جميع المهام مكتملة
+                        const completedTasks = userTasksStatus.filter(t => t.completed).length + 1;
+                        
+                        if (completedTasks === 10) {
+                            tg.showAlert("🎉 ألف مبروك! أكملت جميع المهام العشرة وربحت 0.01 USDT!");
+                        } else {
+                            tg.showAlert(`✅ تم إكمال المهمة ${taskId}! متبقي ${10 - completedTasks} مهام للفوز بالمكافأة`);
+                        }
+                        
                         await refreshUserData();
                     } else {
                         tg.showAlert(data.message || "حدث خطأ، حاول مرة أخرى");
@@ -315,6 +373,7 @@
                 return;
             }
 
+            // تشغيل الإعلان
             if (typeof show_10673309 === 'function') {
                 try {
                     await show_10673309();
@@ -328,7 +387,7 @@
                     renderTasks();
                     
                     if (currentAdProgress.count >= 3) {
-                        tg.showAlert("🎉 أكملت 3 إعلانات! اضغط على زر المطالبة");
+                        tg.showAlert(`🎬 أكملت 3 إعلانات للمهمة ${taskId}! اضغط على "تأكيد المشاهدة"`);
                     }
                 } catch (error) {
                     tg.showAlert("❌ فشل تشغيل الإعلان");
@@ -375,7 +434,7 @@
             }).join('');
         }
 
-        // معالجة طلب السحب (Binance Pay)
+        // معالجة طلب السحب
         async function handleWithdraw() {
             const amount = parseFloat(document.getElementById('withdraw-amount').value);
             const binancePayId = document.getElementById('binance-pay-id').value.trim();
@@ -465,4 +524,3 @@
     </script>
 </body>
 </html>
-
