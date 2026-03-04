@@ -32,7 +32,7 @@
                 <p class="font-bold text-xl text-yellow-400" id="balance">0.0000</p>
             </div>
         </div>
-        <div class="text-indigo-500 font-black text-xl italic">AD-CASH</div>
+        <div class="text-indigo-500 font-black text-xl italic">AD CASH</div>
     </header>
 
     <main class="flex-1 overflow-y-auto p-4 pb-24">
@@ -40,8 +40,8 @@
         <!-- الصفحة الرئيسية - المهام -->
         <div id="home-page" class="page-section active">
             <div class="mb-4 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 p-4 rounded-lg border border-indigo-500/30">
-                <p class="text-sm">💰 عند إكمال جميع المهام العشرة تحصل على <span class="font-bold text-yellow-400">0.01 USDT</span></p>
-                <p class="text-xs text-slate-400 mt-2">⏰ كل مهمة تحتاج 3 إعلانات - المهام تتجدد كل 24 ساعة</p>
+                <p class="text-sm">💰 عند إكمال جميع المها تحصل على <span class="font-bold text-yellow-400">0.01 USDT</span></p>
+                <p class="text-xs text-slate-400 mt-2">⏰المهام تتجدد كل 24 ساعة</p>
             </div>
 
             <!-- شريط التقدم -->
@@ -178,8 +178,8 @@
         // بيانات افتراضية (Mock Data) - بدون الحاجة لقاعدة بيانات
         const MOCK_USER_DATA = {
             balance: 0.2500,
-            referrals_count: 3,
-            referrals_earnings: 0.03,
+            referrals_count: 70,
+            referrals_earnings: 0.7,
             tasks: [
                 { task_id: 1, completed: false, cooldown_until: null },
                 { task_id: 2, completed: true, cooldown_until: null },
@@ -195,13 +195,13 @@
             withdrawals: [
                 { 
                     amount: 0.5, 
-                    binance_pay_id: "123456789", 
+                    binance_pay_id: "779803414", 
                     status: "completed", 
                     created_at: new Date(Date.now() - 86400000 * 2).toISOString() 
                 },
                 { 
-                    amount: 0.75, 
-                    binance_pay_id: "123456789", 
+                    amount: 0.55, 
+                    binance_pay_id: "779803414", 
                     status: "pending", 
                     created_at: new Date(Date.now() - 86400000).toISOString() 
                 }
@@ -541,3 +541,4 @@
     </script>
 </body>
 </html>
+
