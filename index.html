@@ -229,12 +229,17 @@
             document.getElementById('total-refs').innerText = data.referrals_count || 0;
             document.getElementById('ref-earnings').innerText = (data.referrals_earnings || 0).toFixed(2);
             
-            // إنشاء رابط الإحالة
-            const botUsername = tg.initDataUnsafe?.user?.username || 'ADCashPro_bot';
-            document.getElementById('ref-link').value = `https://t.me/${botUsername}?start=${userId}`;
-            
-            userTasksStatus = data.tasks || [];
-            
+         // 1. ضع اسم معرف البوت الخاص بك هنا مكان ayoub_mahbous (بدون علامة @)
+const botUsername = 'ADCash_dzbot'; 
+
+// 2. إنشاء رابط الإحالة الصحيح
+const refLink = `https://t.me/${botUsername}?start=${userId}`;
+
+// 3. وضع الرابط في الخانة المخصصة له في الصفحة
+document.getElementById('ref-link').value = refLink;
+
+// استكمال بقية الكود
+userTasksStatus = data.tasks || [];
             // حساب عدد المهام المكتملة
             const completedTasks = userTasksStatus.filter(t => t.completed).length;
             
@@ -524,3 +529,4 @@
     </script>
 </body>
 </html>
+
