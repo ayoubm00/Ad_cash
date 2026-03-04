@@ -45,7 +45,7 @@
             </div>
 
             <!-- شريط التقدم -->
-            <div id="progress-section" class="mb-4 bg-slate-800 p-4 rounded-lg border border-slate-700 hidden">
+            <div id="progress-section" class="mb-4 bg-slate-800 p-4 rounded-lg border border-slate-700">
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-sm">تقدم المهام</span>
                     <span class="text-sm text-yellow-400" id="tasks-progress">0/10</span>
@@ -56,19 +56,19 @@
                 <p class="text-xs text-slate-400 mt-2" id="progress-message"></p>
             </div>
             
-            <!-- شاشة التحميل -->
-            <div id="tasks-loading" class="space-y-3">
+            <!-- شاشة التحميل (مخفية افتراضياً) -->
+            <div id="tasks-loading" class="space-y-3 hidden">
                 <div class="skeleton"></div>
                 <div class="skeleton"></div>
                 <div class="skeleton"></div>
             </div>
             
             <!-- حاوية المهام -->
-            <div id="tasks-container" class="space-y-3 hidden">
-                <!-- سيتم تعبئتها عبر JavaScript -->
+            <div id="tasks-container" class="space-y-3">
+                <!-- سيتم تعبئتها عبر JavaScript مباشرة -->
             </div>
             
-            <!-- رسالة خطأ -->
+            <!-- رسالة خطأ (مخفية) -->
             <div id="tasks-error" class="hidden text-center py-8">
                 <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-3"></i>
                 <p class="text-red-400">فشل تحميل المهام</p>
@@ -175,51 +175,55 @@
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // استخدم Render URL - قم بتغييره إلى رابط السيرفر الخاص بك
-        const API_URL = "https://botserv-1.onrender.com"; // ✅ صحيح // للتجربة المحلية
+        // بيانات افتراضية (Mock Data) - بدون الحاجة لقاعدة بيانات
+        const MOCK_USER_DATA = {
+            balance: 0.2500,
+            referrals_count: 3,
+            referrals_earnings: 0.03,
+            tasks: [
+                { task_id: 1, completed: false, cooldown_until: null },
+                { task_id: 2, completed: true, cooldown_until: null },
+                { task_id: 3, completed: false, cooldown_until: null },
+                { task_id: 4, completed: false, cooldown_until: null },
+                { task_id: 5, completed: true, cooldown_until: null },
+                { task_id: 6, completed: false, cooldown_until: null },
+                { task_id: 7, completed: false, cooldown_until: null },
+                { task_id: 8, completed: true, cooldown_until: null },
+                { task_id: 9, completed: false, cooldown_until: null },
+                { task_id: 10, completed: false, cooldown_until: null }
+            ],
+            withdrawals: [
+                { 
+                    amount: 0.5, 
+                    binance_pay_id: "123456789", 
+                    status: "completed", 
+                    created_at: new Date(Date.now() - 86400000 * 2).toISOString() 
+                },
+                { 
+                    amount: 0.75, 
+                    binance_pay_id: "123456789", 
+                    status: "pending", 
+                    created_at: new Date(Date.now() - 86400000).toISOString() 
+                }
+            ]
+        };
+
         const userId = tg.initDataUnsafe?.user?.id?.toString() || "DEBUG_USER";
         const startParam = tg.initDataUnsafe?.start_param || null;
 
-        let userTasksStatus = [];
+        let userTasksStatus = MOCK_USER_DATA.tasks;
         let currentAdProgress = { taskId: null, count: 0 };
         let refreshInterval;
 
-        // تهيئة التطبيق
-        async function init() {
-            // إظهار شاشة التحميل
-            document.getElementById('tasks-loading').classList.remove('hidden');
-            document.getElementById('tasks-container').classList.add('hidden');
-            document.getElementById('tasks-error').classList.add('hidden');
-            document.getElementById('progress-section').classList.add('hidden');
+        // تهيئة التطبيق (بدون اتصال بالخادم)
+        function init() {
+            console.log('✅ تم التهيئة بنجاح - وضع العرض التجريبي');
             
-            try {
-                console.log('جاري الاتصال بالخادم:', API_URL);
-                
-                const response = await fetch(`${API_URL}/api/user/${userId}${startParam ? `?ref=${startParam}` : ''}`);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log('تم استلام البيانات:', data);
-                
-                updateUI(data);
-                startRealTimeUpdates();
-                
-                // إخفاء التحميل وإظهار المهام
-                document.getElementById('tasks-loading').classList.add('hidden');
-                document.getElementById('tasks-container').classList.remove('hidden');
-                
-            } catch (error) {
-                console.error('Init error:', error);
-                
-                // إخفاء التحميل وإظهار رسالة الخطأ
-                document.getElementById('tasks-loading').classList.add('hidden');
-                document.getElementById('tasks-error').classList.remove('hidden');
-                
-                tg.showAlert("❌ فشل الاتصال بالخادم. تأكد من اتصالك بالإنترنت.");
-            }
+            // تحديث الواجهة بالبيانات الافتراضية مباشرة
+            updateUI(MOCK_USER_DATA);
+            
+            // بدء التحديثات الوهمية (اختياري)
+            startRealTimeUpdates();
         }
 
         // تحديث الواجهة
@@ -238,18 +242,16 @@
             // حساب عدد المهام المكتملة
             const completedTasks = userTasksStatus.filter(t => t.completed).length;
             
-            // إظهار شريط التقدم إذا كان هناك مهام مكتملة
-            if (completedTasks > 0) {
-                document.getElementById('progress-section').classList.remove('hidden');
-                document.getElementById('tasks-progress').innerText = `${completedTasks}/10`;
-                document.getElementById('progress-bar').style.width = `${(completedTasks / 10) * 100}%`;
-                
-                if (completedTasks === 10) {
-                    document.getElementById('progress-message').innerText = '🎉 تهانينا! أكملت جميع المهام وربحت 0.01 USDT';
-                } else {
-                    const remaining = 10 - completedTasks;
-                    document.getElementById('progress-message').innerText = `⏳ متبقي ${remaining} مهام للفوز بـ 0.01 USDT`;
-                }
+            // إظهار شريط التقدم
+            document.getElementById('progress-section').classList.remove('hidden');
+            document.getElementById('tasks-progress').innerText = `${completedTasks}/10`;
+            document.getElementById('progress-bar').style.width = `${(completedTasks / 10) * 100}%`;
+            
+            if (completedTasks === 10) {
+                document.getElementById('progress-message').innerText = '🎉 تهانينا! أكملت جميع المهام وربحت 0.01 USDT';
+            } else {
+                const remaining = 10 - completedTasks;
+                document.getElementById('progress-message').innerText = `⏳ متبقي ${remaining} مهام للفوز بـ 0.01 USDT`;
             }
             
             renderTasks();
@@ -342,38 +344,37 @@
         async function handleTaskClick(taskId) {
             // إذا كان المستخدم قد أكمل 3 إعلانات لهذه المهمة
             if (currentAdProgress.taskId === taskId && currentAdProgress.count >= 3) {
-                try {
-                    const response = await fetch(`${API_URL}/api/complete-task`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ user_id: userId, task_id: taskId })
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                        currentAdProgress = { taskId: null, count: 0 };
-                        
-                        // التحقق مما إذا كانت جميع المهام مكتملة
-                        const completedTasks = userTasksStatus.filter(t => t.completed).length + 1;
-                        
-                        if (completedTasks === 10) {
-                            tg.showAlert("🎉 ألف مبروك! أكملت جميع المهام العشرة وربحت 0.01 USDT!");
-                        } else {
-                            tg.showAlert(`✅ تم إكمال المهمة ${taskId}! متبقي ${10 - completedTasks} مهام للفوز بالمكافأة`);
-                        }
-                        
-                        await refreshUserData();
-                    } else {
-                        tg.showAlert(data.message || "حدث خطأ، حاول مرة أخرى");
-                    }
-                } catch (error) {
-                    tg.showAlert("❌ فشل الاتصال بالخادم");
+                
+                // محاكاة إكمال المهمة
+                const taskIndex = userTasksStatus.findIndex(t => t.task_id === taskId);
+                if (taskIndex !== -1) {
+                    userTasksStatus[taskIndex].completed = true;
+                } else {
+                    userTasksStatus.push({ task_id: taskId, completed: true, cooldown_until: null });
                 }
+                
+                currentAdProgress = { taskId: null, count: 0 };
+                
+                // تحديث الرصيد الوهمي
+                MOCK_USER_DATA.balance += 0.001; // زيادة صغيرة للرصيد
+                
+                // التحقق مما إذا كانت جميع المهام مكتملة
+                const completedTasks = userTasksStatus.filter(t => t.completed).length;
+                
+                if (completedTasks === 10) {
+                    MOCK_USER_DATA.balance += 0.01; // إضافة مكافأة إكمال جميع المهام
+                    tg.showAlert("🎉 ألف مبروك! أكملت جميع المهام العشرة وربحت 0.01 USDT!");
+                } else {
+                    tg.showAlert(`✅ تم إكمال المهمة ${taskId}! متبقي ${10 - completedTasks} مهام للفوز بالمكافأة`);
+                }
+                
+                // تحديث الواجهة
+                updateUI(MOCK_USER_DATA);
+                
                 return;
             }
 
-            // تشغيل الإعلان
+            // تشغيل الإعلان (محاكاة)
             if (typeof show_10673309 === 'function') {
                 try {
                     await show_10673309();
@@ -393,7 +394,20 @@
                     tg.showAlert("❌ فشل تشغيل الإعلان");
                 }
             } else {
-                tg.showAlert("❌ مكتبة الإعلانات غير متوفرة");
+                // محاكاة الإعلان في حالة عدم وجود المكتبة
+                tg.showAlert("🎬 تم تشغيل الإعلان (وضع المحاكاة)");
+                
+                if (currentAdProgress.taskId !== taskId) {
+                    currentAdProgress = { taskId: taskId, count: 1 };
+                } else {
+                    currentAdProgress.count++;
+                }
+                
+                renderTasks();
+                
+                if (currentAdProgress.count >= 3) {
+                    tg.showAlert(`🎬 أكملت 3 إعلانات للمهمة ${taskId}! اضغط على "تأكيد المشاهدة"`);
+                }
             }
         }
 
@@ -444,6 +458,11 @@
                 return;
             }
             
+            if (amount > MOCK_USER_DATA.balance) {
+                tg.showAlert("❌ الرصيد غير كافي");
+                return;
+            }
+            
             if (!binancePayId || binancePayId.length < 5) {
                 tg.showAlert("❌ يرجى إدخال Binance Pay ID صحيح");
                 return;
@@ -455,30 +474,25 @@
                 return;
             }
 
-            try {
-                const response = await fetch(`${API_URL}/api/withdraw`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        user_id: userId,
-                        amount: amount,
-                        binance_pay_id: binancePayId
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    tg.showAlert("✅ تم إرسال طلب السحب بنجاح! سنقوم بالدفع خلال 24 ساعة عبر Binance Pay.");
-                    document.getElementById('withdraw-amount').value = '';
-                    document.getElementById('binance-pay-id').value = '';
-                    await refreshUserData();
-                } else {
-                    tg.showAlert(data.message || "❌ فشل طلب السحب");
-                }
-            } catch (error) {
-                tg.showAlert("❌ فشل الاتصال بالخادم");
-            }
+            // محاكاة طلب السحب
+            MOCK_USER_DATA.balance -= amount;
+            
+            // إضافة طلب السحب إلى السجل
+            const newWithdrawal = {
+                amount: amount,
+                binance_pay_id: binancePayId,
+                status: "pending",
+                created_at: new Date().toISOString()
+            };
+            
+            MOCK_USER_DATA.withdrawals.unshift(newWithdrawal);
+            
+            tg.showAlert("✅ تم إرسال طلب السحب بنجاح! (وضع المحاكاة)");
+            document.getElementById('withdraw-amount').value = '';
+            document.getElementById('binance-pay-id').value = '';
+            
+            // تحديث الواجهة
+            updateUI(MOCK_USER_DATA);
         }
 
         // نسخ رابط الإحالة
@@ -489,18 +503,21 @@
             tg.showAlert("📋 تم نسخ الرابط!");
         }
 
-        // تحديث بيانات المستخدم
+        // تحديث بيانات المستخدم (محاكاة)
         async function refreshUserData() {
-            try {
-                const response = await fetch(`${API_URL}/api/user/${userId}`);
-                const data = await response.json();
-                updateUI(data);
-            } catch (error) {
-                console.error('Refresh error:', error);
+            console.log('تحديث البيانات...');
+            
+            // تحديث عشوائي للحالة (اختياري)
+            if (Math.random() > 0.7) {
+                // تغيير عشوائي بسيط لإظهار أن التحديث يعمل
+                const randomTask = Math.floor(Math.random() * 10) + 1;
+                console.log(`تحديث وهمي للمهمة ${randomTask}`);
             }
+            
+            updateUI(MOCK_USER_DATA);
         }
 
-        // تحديث实时
+        // تحديث دوري (محاكاة)
         function startRealTimeUpdates() {
             if (refreshInterval) clearInterval(refreshInterval);
             refreshInterval = setInterval(refreshUserData, 30000); // كل 30 ثانية
@@ -524,4 +541,3 @@
     </script>
 </body>
 </html>
-
