@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
-        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #fff; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #fff; }
         .nav-item.active { color: #6366f1; border-top: 3px solid #6366f1; }
         .nav-item { color: #64748b; }
         .page-section { display: none; }
@@ -28,7 +28,7 @@
         <div class="flex items-center gap-3">
             <div class="bg-yellow-500 p-2 rounded-lg"><i class="fas fa-wallet text-white"></i></div>
             <div>
-                <p class="text-[10px] text-slate-400">رصيدك</p>
+                <p class="text-[10px] text-slate-400">Your Balance</p>
                 <p class="font-bold text-xl text-yellow-400" id="balance">0.0000</p>
             </div>
         </div>
@@ -37,17 +37,17 @@
 
     <main class="flex-1 overflow-y-auto p-4 pb-24">
         
-        <!-- الصفحة الرئيسية - المهام -->
+        <!-- Home Page - Tasks -->
         <div id="home-page" class="page-section active">
             <div class="mb-4 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 p-4 rounded-lg border border-indigo-500/30">
-                <p class="text-sm">💰 عند إكمال جميع المهام تحصل على <span class="font-bold text-yellow-400">0.01 USDT</span></p>
-                <p class="text-xs text-slate-400 mt-2">⏰المهام تتجدد كل 24 ساعة</p>
+                <p class="text-sm">💰 Complete all tasks to earn <span class="font-bold text-yellow-400">0.01 USDT</span></p>
+                <p class="text-xs text-slate-400 mt-2">⏰ Tasks reset every 24 hours</p>
             </div>
 
-            <!-- شريط التقدم -->
+            <!-- Progress Bar -->
             <div id="progress-section" class="mb-4 bg-slate-800 p-4 rounded-lg border border-slate-700">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm">تقدم المهام</span>
+                    <span class="text-sm">Task Progress</span>
                     <span class="text-sm text-yellow-400" id="tasks-progress">0/10</span>
                 </div>
                 <div class="w-full bg-slate-700 rounded-full h-2.5">
@@ -56,35 +56,35 @@
                 <p class="text-xs text-slate-400 mt-2" id="progress-message"></p>
             </div>
             
-            <!-- شاشة التحميل (مخفية افتراضياً) -->
+            <!-- Loading Screen (hidden by default) -->
             <div id="tasks-loading" class="space-y-3 hidden">
                 <div class="skeleton"></div>
                 <div class="skeleton"></div>
                 <div class="skeleton"></div>
             </div>
             
-            <!-- حاوية المهام -->
+            <!-- Tasks Container -->
             <div id="tasks-container" class="space-y-3">
-                <!-- سيتم تعبئتها عبر JavaScript مباشرة -->
+                <!-- Will be populated via JavaScript -->
             </div>
             
-            <!-- رسالة خطأ (مخفية) -->
+            <!-- Error Message (hidden) -->
             <div id="tasks-error" class="hidden text-center py-8">
                 <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-3"></i>
-                <p class="text-red-400">فشل تحميل المهام</p>
-                <button onclick="init()" class="mt-3 bg-indigo-600 px-4 py-2 rounded-lg text-sm">إعادة المحاولة</button>
+                <p class="text-red-400">Failed to load tasks</p>
+                <button onclick="init()" class="mt-3 bg-indigo-600 px-4 py-2 rounded-lg text-sm">Try Again</button>
             </div>
         </div>
 
-        <!-- صفحة الإحالة -->
+        <!-- Referral Page -->
         <div id="refer-page" class="page-section">
             <div class="text-center py-4">
                 <i class="fas fa-gift text-6xl text-indigo-500 mb-4"></i>
-                <h2 class="text-2xl font-bold">نظام الإحالة</h2>
-                <p class="text-slate-400 text-sm mt-2">ادعو أصدقائك واربح مع كل مهمة يكملونها</p>
+                <h2 class="text-2xl font-bold">Referral System</h2>
+                <p class="text-slate-400 text-sm mt-2">Invite your friends and earn with every task they complete</p>
                 
                 <div class="mt-6 bg-slate-800 p-4 rounded-xl border border-slate-700">
-                    <p class="text-xs text-slate-400 mb-2">رابط الدعوة الخاص بك</p>
+                    <p class="text-xs text-slate-400 mb-2">Your referral link</p>
                     <div class="flex items-center gap-2">
                         <input type="text" id="ref-link" class="w-full bg-slate-700 text-indigo-300 text-sm p-3 rounded-lg border border-slate-600" readonly>
                         <button onclick="copyRef()" class="bg-indigo-600 p-3 rounded-lg hover:bg-indigo-700 transition">
@@ -95,78 +95,78 @@
                 
                 <div class="mt-6 grid grid-cols-2 gap-4">
                     <div class="bg-slate-800 p-4 rounded-xl text-center">
-                        <p class="text-[10px] text-slate-400">عدد الإحالات</p>
+                        <p class="text-[10px] text-slate-400">Total Referrals</p>
                         <p id="total-refs" class="text-xl font-bold">0</p>
                     </div>
                     <div class="bg-slate-800 p-4 rounded-xl text-center">
-                        <p class="text-[10px] text-slate-400">أرباح الإحالة</p>
+                        <p class="text-[10px] text-slate-400">Referral Earnings</p>
                         <p id="ref-earnings" class="text-xl font-bold text-green-400">0.00</p>
                     </div>
                 </div>
 
-                <div class="mt-6 text-right">
-                    <h3 class="font-bold mb-3">كيف يعمل نظام الإحالة؟</h3>
+                <div class="mt-6 text-left">
+                    <h3 class="font-bold mb-3">How does the referral system work?</h3>
                     <div class="bg-slate-800/50 p-3 rounded-lg text-sm space-y-2">
-                        <p>• تحصل على <span class="text-yellow-400">0.01 USDT</span> عن كل صديق يكمل جميع المهام العشرة</p>
-                        <p>• يمكنك دعوة عدد غير محدود من الأصدقاء</p>
-                        <p>• يتم إضافة الأرباح فور إكمال صديقك للمهام</p>
+                        <p>• Earn <span class="text-yellow-400">0.01 USDT</span> for each friend who completes all 10 tasks</p>
+                        <p>• You can invite unlimited friends</p>
+                        <p>• Earnings are added immediately when your friend completes the tasks</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- صفحة المحفظة والسحب -->
+        <!-- Wallet & Withdrawal Page -->
         <div id="wallet-page" class="page-section">
             <div class="bg-gradient-to-br from-indigo-900 to-slate-800 p-6 rounded-2xl mb-6 shadow-2xl border border-indigo-500/20">
-                <p class="text-indigo-300 text-sm">الرصيد القابل للسحب</p>
+                <p class="text-indigo-300 text-sm">Withdrawable Balance</p>
                 <h1 class="text-4xl font-black text-white mt-2" id="withdraw-balance-display">0.0000 <span class="text-sm text-yellow-400 font-normal">USDT</span></h1>
             </div>
             
             <div class="space-y-4">
                 <div>
-                    <label class="text-xs text-slate-400 block mb-1 mr-2">مبلغ السحب (الحد الأدنى 0.5 USDT)</label>
+                    <label class="text-xs text-slate-400 block mb-1 ml-2">Withdrawal Amount (minimum 0.5 USDT)</label>
                     <input type="number" id="withdraw-amount" step="0.01" min="0.5" placeholder="0.50" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
                 </div>
                 <div>
-                    <label class="text-xs text-slate-400 block mb-1 mr-2">Binance Pay ID</label>
-                    <input type="text" id="binance-pay-id" placeholder="أدخل Binance Pay ID الخاص بك" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
+                    <label class="text-xs text-slate-400 block mb-1 ml-2">Binance Pay ID</label>
+                    <input type="text" id="binance-pay-id" placeholder="Enter your Binance Pay ID" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
                 </div>
-                <div class="text-xs text-slate-400 mr-2 mb-2">
-                    <i class="fas fa-info-circle text-indigo-400 ml-1"></i>
-                    كيف تجد Binance Pay ID؟ الإعدادات > Binance Pay > عرض معرف الدفع
+                <div class="text-xs text-slate-400 ml-2 mb-2">
+                    <i class="fas fa-info-circle text-indigo-400 mr-1"></i>
+                    How to find your Binance Pay ID? Settings > Binance Pay > View Pay ID
                 </div>
                 <button onclick="handleWithdraw()" class="w-full bg-indigo-600 py-4 rounded-xl font-bold text-lg shadow-lg shadow-indigo-500/20 active:scale-95 transition hover:bg-indigo-700">
-                    طلب السحب عبر Binance Pay
+                    Request Withdrawal via Binance Pay
                 </button>
             </div>
 
-            <!-- سجل السحوبات -->
+            <!-- Withdrawal History -->
             <div class="mt-8">
                 <h3 class="font-bold mb-4 flex items-center gap-2">
                     <i class="fas fa-history text-indigo-400"></i>
-                    سجل السحوبات
+                    Withdrawal History
                 </h3>
                 <div id="withdrawals-history" class="space-y-2">
-                    <!-- سيتم تعبئتها عبر JavaScript -->
+                    <!-- Will be populated via JavaScript -->
                 </div>
             </div>
         </div>
 
     </main>
 
-    <!-- شريط التنقل السفلي -->
+    <!-- Bottom Navigation Bar -->
     <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around items-center h-20 px-4">
         <button onclick="showPage('home-page', this)" class="nav-item active flex flex-col items-center gap-1 transition-all">
             <i class="fas fa-th-large text-xl"></i>
-            <span class="text-[10px]">المهام</span>
+            <span class="text-[10px]">Tasks</span>
         </button>
         <button onclick="showPage('refer-page', this)" class="nav-item flex flex-col items-center gap-1 transition-all">
             <i class="fas fa-user-plus text-xl"></i>
-            <span class="text-[10px]">الإحالة</span>
+            <span class="text-[10px]">Referrals</span>
         </button>
         <button onclick="showPage('wallet-page', this)" class="nav-item flex flex-col items-center gap-1 transition-all">
             <i class="fas fa-wallet text-xl"></i>
-            <span class="text-[10px]">السحب</span>
+            <span class="text-[10px]">Withdraw</span>
         </button>
     </nav>
 
@@ -175,7 +175,7 @@
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // بيانات افتراضية (Mock Data) - بدون الحاجة لقاعدة بيانات
+        // Mock Data - No database needed
         const MOCK_USER_DATA = {
             balance: 0.2500,
             referrals_count: 70,
@@ -215,60 +215,60 @@
         let currentAdProgress = { taskId: null, count: 0 };
         let refreshInterval;
 
-        // تهيئة التطبيق (بدون اتصال بالخادم)
+        // Initialize app (without server connection)
         function init() {
-            console.log('✅ تم التهيئة بنجاح - وضع العرض التجريبي');
+            console.log('✅ Initialized successfully - Demo mode');
             
-            // تحديث الواجهة بالبيانات الافتراضية مباشرة
+            // Update UI with default data
             updateUI(MOCK_USER_DATA);
             
-            // بدء التحديثات الوهمية (اختياري)
+            // Start mock updates (optional)
             startRealTimeUpdates();
         }
 
-        // تحديث الواجهة
+        // Update UI
         function updateUI(data) {
             document.getElementById('balance').innerText = data.balance.toFixed(4);
             document.getElementById('withdraw-balance-display').innerText = data.balance.toFixed(4);
             document.getElementById('total-refs').innerText = data.referrals_count || 0;
             document.getElementById('ref-earnings').innerText = (data.referrals_earnings || 0).toFixed(2);
             
-            // إنشاء رابط الإحالة
+            // Create referral link
             const botUsername = tg.initDataUnsafe?.user?.username || 'ADCashPro_bot';
             document.getElementById('ref-link').value = `https://t.me/${botUsername}?start=${userId}`;
             
             userTasksStatus = data.tasks || [];
             
-            // حساب عدد المهام المكتملة
+            // Calculate completed tasks
             const completedTasks = userTasksStatus.filter(t => t.completed).length;
             
-            // إظهار شريط التقدم
+            // Show progress bar
             document.getElementById('progress-section').classList.remove('hidden');
             document.getElementById('tasks-progress').innerText = `${completedTasks}/10`;
             document.getElementById('progress-bar').style.width = `${(completedTasks / 10) * 100}%`;
             
             if (completedTasks === 10) {
-                document.getElementById('progress-message').innerText = '🎉 تهانينا! أكملت جميع المهام وربحت 0.01 USDT';
+                document.getElementById('progress-message').innerText = '🎉 Congratulations! You completed all tasks and earned 0.01 USDT';
             } else {
                 const remaining = 10 - completedTasks;
-                document.getElementById('progress-message').innerText = `⏳ متبقي ${remaining} مهام للفوز بـ 0.01 USDT`;
+                document.getElementById('progress-message').innerText = `⏳ ${remaining} tasks remaining to win 0.01 USDT`;
             }
             
             renderTasks();
             renderWithdrawalsHistory(data.withdrawals || []);
         }
 
-        // عرض المهام
+        // Display tasks
         function renderTasks() {
             const container = document.getElementById('tasks-container');
             container.innerHTML = '';
 
             if (!userTasksStatus || userTasksStatus.length === 0) {
-                container.innerHTML = '<p class="text-center text-slate-400 py-8">لا توجد مهام متاحة حالياً</p>';
+                container.innerHTML = '<p class="text-center text-slate-400 py-8">No tasks available at the moment</p>';
                 return;
             }
 
-            // حساب عدد المهام المكتملة
+            // Calculate completed tasks count
             const completedCount = userTasksStatus.filter(t => t.completed).length;
             const allCompleted = completedCount === 10;
 
@@ -292,7 +292,7 @@
                 
                 let actionBtn = '';
                 if (isCompleted) {
-                    actionBtn = `<span class="text-green-400 text-sm"><i class="fas fa-check-circle ml-1"></i>مكتملة</span>`;
+                    actionBtn = `<span class="text-green-400 text-sm"><i class="fas fa-check-circle mr-1"></i>Completed</span>`;
                 } else if (isInCooldown) {
                     actionBtn = `<span class="text-slate-500 text-sm font-mono">⏰ ${timeRemaining}</span>`;
                 } else {
@@ -301,14 +301,14 @@
                     
                     if (isProcessing) {
                         if (currentAdProgress.count >= 3) {
-                            btnLabel = 'تأكيد المشاهدة ✅';
+                            btnLabel = 'Confirm Watch ✅';
                             btnClass = 'bg-yellow-500 text-black pulse';
                         } else {
-                            btnLabel = `شاهد إعلان ${currentAdProgress.count}/3`;
+                            btnLabel = `Watch Ad ${currentAdProgress.count}/3`;
                             btnClass = 'bg-indigo-600';
                         }
                     } else {
-                        btnLabel = 'شاهد إعلان';
+                        btnLabel = 'Watch Ad';
                         btnClass = 'bg-indigo-600';
                     }
                     
@@ -317,8 +317,8 @@
 
                 card.innerHTML = `
                     <div>
-                        <p class="text-sm font-bold">المهمة ${i}</p>
-                        <p class="text-[10px] text-slate-400">مشاهدة 3 إعلانات</p>
+                        <p class="text-sm font-bold">Task ${i}</p>
+                        <p class="text-[10px] text-slate-400">Watch 3 ads</p>
                     </div>
                     ${actionBtn}
                 `;
@@ -326,26 +326,26 @@
                 container.appendChild(card);
             }
 
-            // إذا كانت جميع المهام مكتملة، أضف رسالة
+            // If all tasks are completed, add message
             if (allCompleted) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = 'mt-4 bg-green-600/20 p-4 rounded-lg border border-green-500/30 text-center';
                 messageDiv.innerHTML = `
                     <i class="fas fa-trophy text-3xl text-yellow-400 mb-2"></i>
-                    <p class="text-green-400">🎉 تهانينا! أكملت جميع المهام</p>
-                    <p class="text-sm text-slate-300">تمت إضافة 0.01 USDT إلى رصيدك</p>
-                    <p class="text-xs text-slate-400 mt-2">عد غداً للمهام الجديدة</p>
+                    <p class="text-green-400">🎉 Congratulations! You completed all tasks</p>
+                    <p class="text-sm text-slate-300">0.01 USDT has been added to your balance</p>
+                    <p class="text-xs text-slate-400 mt-2">Come back tomorrow for new tasks</p>
                 `;
                 container.appendChild(messageDiv);
             }
         }
 
-        // معالجة النقر على المهمة
+        // Handle task click
         async function handleTaskClick(taskId) {
-            // إذا كان المستخدم قد أكمل 3 إعلانات لهذه المهمة
+            // If user has completed 3 ads for this task
             if (currentAdProgress.taskId === taskId && currentAdProgress.count >= 3) {
                 
-                // محاكاة إكمال المهمة
+                // Simulate task completion
                 const taskIndex = userTasksStatus.findIndex(t => t.task_id === taskId);
                 if (taskIndex !== -1) {
                     userTasksStatus[taskIndex].completed = true;
@@ -355,26 +355,26 @@
                 
                 currentAdProgress = { taskId: null, count: 0 };
                 
-                // تحديث الرصيد الوهمي
-                MOCK_USER_DATA.balance += 0.001; // زيادة صغيرة للرصيد
+                // Update mock balance
+                MOCK_USER_DATA.balance += 0.001; // Small increase to balance
                 
-                // التحقق مما إذا كانت جميع المهام مكتملة
+                // Check if all tasks are completed
                 const completedTasks = userTasksStatus.filter(t => t.completed).length;
                 
                 if (completedTasks === 10) {
-                    MOCK_USER_DATA.balance += 0.01; // إضافة مكافأة إكمال جميع المهام
-                    tg.showAlert("🎉 ألف مبروك! أكملت جميع المهام العشرة وربحت 0.01 USDT!");
+                    MOCK_USER_DATA.balance += 0.01; // Add bonus for completing all tasks
+                    tg.showAlert("🎉 Congratulations! You completed all 10 tasks and earned 0.01 USDT!");
                 } else {
-                    tg.showAlert(`✅ تم إكمال المهمة ${taskId}! متبقي ${10 - completedTasks} مهام للفوز بالمكافأة`);
+                    tg.showAlert(`✅ Task ${taskId} completed! ${10 - completedTasks} tasks remaining to win the bonus`);
                 }
                 
-                // تحديث الواجهة
+                // Update UI
                 updateUI(MOCK_USER_DATA);
                 
                 return;
             }
 
-            // تشغيل الإعلان (محاكاة)
+            // Play ad (simulated)
             if (typeof show_10673309 === 'function') {
                 try {
                     await show_10673309();
@@ -388,14 +388,14 @@
                     renderTasks();
                     
                     if (currentAdProgress.count >= 3) {
-                        tg.showAlert(`🎬 أكملت 3 إعلانات للمهمة ${taskId}! اضغط على "تأكيد المشاهدة"`);
+                        tg.showAlert(`🎬 You've completed 3 ads for task ${taskId}! Click "Confirm Watch"`);
                     }
                 } catch (error) {
-                    tg.showAlert("❌ فشل تشغيل الإعلان");
+                    tg.showAlert("❌ Failed to play ad");
                 }
             } else {
-                // محاكاة الإعلان في حالة عدم وجود المكتبة
-                tg.showAlert("🎬 تم تشغيل الإعلان (وضع المحاكاة)");
+                // Simulate ad when library is not available
+                tg.showAlert("🎬 Ad played (simulation mode)");
                 
                 if (currentAdProgress.taskId !== taskId) {
                     currentAdProgress = { taskId: taskId, count: 1 };
@@ -406,17 +406,17 @@
                 renderTasks();
                 
                 if (currentAdProgress.count >= 3) {
-                    tg.showAlert(`🎬 أكملت 3 إعلانات للمهمة ${taskId}! اضغط على "تأكيد المشاهدة"`);
+                    tg.showAlert(`🎬 You've completed 3 ads for task ${taskId}! Click "Confirm Watch"`);
                 }
             }
         }
 
-        // عرض سجل السحوبات
+        // Display withdrawal history
         function renderWithdrawalsHistory(withdrawals) {
             const container = document.getElementById('withdrawals-history');
             
             if (!withdrawals || withdrawals.length === 0) {
-                container.innerHTML = '<p class="text-center text-slate-500 py-4">لا توجد سحوبات سابقة</p>';
+                container.innerHTML = '<p class="text-center text-slate-500 py-4">No previous withdrawals</p>';
                 return;
             }
             
@@ -428,12 +428,12 @@
                 }[w.status] || 'text-slate-400';
                 
                 const statusText = {
-                    'pending': 'قيد الانتظار',
-                    'completed': 'تم الدفع',
-                    'rejected': 'مرفوض'
+                    'pending': 'Pending',
+                    'completed': 'Paid',
+                    'rejected': 'Rejected'
                 }[w.status] || w.status;
                 
-                const date = new Date(w.created_at).toLocaleDateString('ar-EG');
+                const date = new Date(w.created_at).toLocaleDateString('en-US');
                 
                 return `
                     <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700 flex justify-between items-center">
@@ -448,36 +448,36 @@
             }).join('');
         }
 
-        // معالجة طلب السحب
+        // Handle withdrawal request
         async function handleWithdraw() {
             const amount = parseFloat(document.getElementById('withdraw-amount').value);
             const binancePayId = document.getElementById('binance-pay-id').value.trim();
             
             if (isNaN(amount) || amount < 0.5) {
-                tg.showAlert("❌ الحد الأدنى للسحب هو 0.5 USDT");
+                tg.showAlert("❌ Minimum withdrawal amount is 0.5 USDT");
                 return;
             }
             
             if (amount > MOCK_USER_DATA.balance) {
-                tg.showAlert("❌ الرصيد غير كافي");
+                tg.showAlert("❌ Insufficient balance");
                 return;
             }
             
             if (!binancePayId || binancePayId.length < 5) {
-                tg.showAlert("❌ يرجى إدخال Binance Pay ID صحيح");
+                tg.showAlert("❌ Please enter a valid Binance Pay ID");
                 return;
             }
 
-            // التحقق من أن Binance Pay ID يتكون من أرقام فقط
+            // Verify Binance Pay ID contains only numbers
             if (!/^\d+$/.test(binancePayId)) {
-                tg.showAlert("❌ Binance Pay ID يجب أن يكون أرقاماً فقط");
+                tg.showAlert("❌ Binance Pay ID must contain only numbers");
                 return;
             }
 
-            // محاكاة طلب السحب
+            // Simulate withdrawal request
             MOCK_USER_DATA.balance -= amount;
             
-            // إضافة طلب السحب إلى السجل
+            // Add withdrawal to history
             const newWithdrawal = {
                 amount: amount,
                 binance_pay_id: binancePayId,
@@ -487,43 +487,43 @@
             
             MOCK_USER_DATA.withdrawals.unshift(newWithdrawal);
             
-            tg.showAlert("✅ تم إرسال طلب السحب بنجاح! (وضع المحاكاة)");
+            tg.showAlert("✅ Withdrawal request sent successfully! (Simulation mode)");
             document.getElementById('withdraw-amount').value = '';
             document.getElementById('binance-pay-id').value = '';
             
-            // تحديث الواجهة
+            // Update UI
             updateUI(MOCK_USER_DATA);
         }
 
-        // نسخ رابط الإحالة
+        // Copy referral link
         function copyRef() {
             const link = document.getElementById('ref-link');
             link.select();
             navigator.clipboard.writeText(link.value);
-            tg.showAlert("📋 تم نسخ الرابط!");
+            tg.showAlert("📋 Link copied!");
         }
 
-        // تحديث بيانات المستخدم (محاكاة)
+        // Update user data (simulated)
         async function refreshUserData() {
-            console.log('تحديث البيانات...');
+            console.log('Updating data...');
             
-            // تحديث عشوائي للحالة (اختياري)
+            // Random update (optional)
             if (Math.random() > 0.7) {
-                // تغيير عشوائي بسيط لإظهار أن التحديث يعمل
+                // Small random change to show update is working
                 const randomTask = Math.floor(Math.random() * 10) + 1;
-                console.log(`تحديث وهمي للمهمة ${randomTask}`);
+                console.log(`Mock update for task ${randomTask}`);
             }
             
             updateUI(MOCK_USER_DATA);
         }
 
-        // تحديث دوري (محاكاة)
+        // Periodic update (simulated)
         function startRealTimeUpdates() {
             if (refreshInterval) clearInterval(refreshInterval);
-            refreshInterval = setInterval(refreshUserData, 30000); // كل 30 ثانية
+            refreshInterval = setInterval(refreshUserData, 30000); // Every 30 seconds
         }
 
-        // تغيير الصفحة
+        // Change page
         function showPage(pageId, btn) {
             document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
@@ -532,14 +532,12 @@
             btn.classList.add('active');
             
             if (pageId === 'wallet-page') {
-                refreshUserData(); // تحديث بيانات السحب عند فتح الصفحة
+                refreshUserData(); // Update withdrawal data when opening page
             }
         }
 
-        // بدء التطبيق
+        // Start application
         init();
     </script>
 </body>
 </html>
-
-
