@@ -3,578 +3,360 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADCash Pro - v2.0</title>
+    <title>ADCash Pro - v3.0</title>
     <script src='//libtl.com/sdk.js' data-zone='10673309' data-sdk='show_10673309'></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
-        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #fff; }
+        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #fff; overflow: hidden; }
         .nav-item.active { color: #6366f1; border-top: 3px solid #6366f1; }
-        .nav-item { color: #64748b; }
-        .page-section { display: none; }
-        .page-section.active { display: block; }
+        .nav-item { color: #64748b; transition: all 0.3s ease; }
+        .page-section { display: none; height: 100%; }
+        .page-section.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .pulse { animation: pulse 2s infinite; }
         @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
         .progress-bar { transition: width 0.5s ease; }
-        .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 8px; height: 60px; }
+        .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 12px; height: 70px; }
         @keyframes loading { 0% {background-position: 200% 0;} 100% {background-position: -200% 0;} }
     </style>
 </head>
 <body class="h-screen flex flex-col">
 
-    <header class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center shadow-xl">
+    <header class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center shadow-xl z-10">
         <div class="flex items-center gap-3">
-            <div class="bg-yellow-500 p-2 rounded-lg"><i class="fas fa-wallet text-white"></i></div>
+            <div class="bg-yellow-500 p-2 rounded-lg shadow-lg shadow-yellow-500/20"><i class="fas fa-wallet text-white"></i></div>
             <div>
-                <p class="text-[10px] text-slate-400">رصيدك</p>
-                <p class="font-bold text-xl text-yellow-400" id="balance">0.0000</p>
+                <p class="text-[10px] text-slate-400">رصيدك الحالي</p>
+                <p class="font-bold text-xl text-yellow-400 leading-none" id="balance">0.0000</p>
             </div>
         </div>
-        <div class="text-indigo-500 font-black text-xl italic">AD-CASH</div>
+        <div class="text-indigo-500 font-black text-xl italic tracking-tighter">AD-CASH</div>
     </header>
 
-    <main class="flex-1 overflow-y-auto p-4 pb-24">
+    <main class="flex-1 overflow-y-auto p-4 pb-28">
         
-        <!-- الصفحة الرئيسية - المهام -->
         <div id="home-page" class="page-section active">
-            <div class="mb-4 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 p-4 rounded-lg border border-indigo-500/30">
-                <p class="text-sm">💰 عند إكمال جميع المهام العشرة تحصل على <span class="font-bold text-yellow-400">0.01 USDT</span></p>
-                <p class="text-xs text-slate-400 mt-2">⏰ كل مهمة تحتاج 3 إعلانات - المهام تتجدد كل 24 ساعة</p>
+            <div id="special-task-container" class="bg-gradient-to-r from-slate-800 to-indigo-900 p-5 rounded-2xl mb-6 shadow-xl border border-indigo-500/50">
+                <h3 class="text-lg font-bold text-white mb-2 flex items-center">
+                    <i class="fas fa-star ml-2 text-yellow-400"></i> مكافأة الاشتراك
+                </h3>
+                <p class="text-xs text-indigo-200 mb-4">اشترك في القنوات واضغط تأكيد للحصول على <span class="text-yellow-400 font-bold">0.01 USDT</span></p>
+                
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <a href="https://t.me/ayoub_mahbous" target="_blank" class="bg-blue-600/50 border border-blue-400/30 text-center py-2 rounded-xl text-xs font-bold">القناة الأولى</a>
+                    <a href="https://t.me/ayoub_mahbous" target="_blank" class="bg-blue-600/50 border border-blue-400/30 text-center py-2 rounded-xl text-xs font-bold">القناة الثانية</a>
+                </div>
+                
+                <button id="verify-btn" onclick="verifySubscription()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-green-900/20 active:scale-95">
+                    تأكيد الاشتراك واستلام المكافأة
+                </button>
             </div>
 
-            <!-- شريط التقدم -->
-            <div id="progress-section" class="mb-4 bg-slate-800 p-4 rounded-lg border border-slate-700 hidden">
+            <div class="mb-4 bg-slate-800/40 p-4 rounded-xl border border-slate-700">
+                <p class="text-sm">💰 أكمل 10 مهام واحصل على <span class="font-bold text-yellow-400">0.01 USDT</span></p>
+                <p class="text-[10px] text-slate-400 mt-1 italic">⏰ المهام تتجدد تلقائياً كل 24 ساعة</p>
+            </div>
+
+            <div id="progress-section" class="mb-4 bg-slate-800 p-4 rounded-xl border border-slate-700 hidden">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm">تقدم المهام</span>
-                    <span class="text-sm text-yellow-400" id="tasks-progress">0/10</span>
+                    <span class="text-xs">تقدم المهام اليومية</span>
+                    <span class="text-sm text-yellow-400 font-bold" id="tasks-progress">0/10</span>
                 </div>
-                <div class="w-full bg-slate-700 rounded-full h-2.5">
-                    <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
+                <div class="w-full bg-slate-700 rounded-full h-2">
+                    <div id="progress-bar" class="bg-indigo-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
                 </div>
-                <p class="text-xs text-slate-400 mt-2" id="progress-message"></p>
+                <p class="text-[10px] text-indigo-300 mt-2" id="progress-message"></p>
             </div>
             
-            <!-- شاشة التحميل -->
             <div id="tasks-loading" class="space-y-3">
                 <div class="skeleton"></div>
                 <div class="skeleton"></div>
                 <div class="skeleton"></div>
             </div>
             
-            <!-- حاوية المهام -->
-            <div id="tasks-container" class="space-y-3 hidden">
-                <!-- سيتم تعبئتها عبر JavaScript -->
-            </div>
+            <div id="tasks-container" class="space-y-3 hidden"></div>
             
-            <!-- رسالة خطأ -->
-            <div id="tasks-error" class="hidden text-center py-8">
-                <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-3"></i>
-                <p class="text-red-400">فشل تحميل المهام</p>
-                <button onclick="init()" class="mt-3 bg-indigo-600 px-4 py-2 rounded-lg text-sm">إعادة المحاولة</button>
+            <div id="tasks-error" class="hidden text-center py-12">
+                <i class="fas fa-wifi text-4xl text-slate-600 mb-3"></i>
+                <p class="text-slate-400">تعذر الاتصال بالسيرفر</p>
+                <button onclick="init()" class="mt-4 bg-indigo-600 px-6 py-2 rounded-full text-sm font-bold">تحديث</button>
             </div>
         </div>
 
-
-<div class="bg-gradient-to-r from-slate-800 to-indigo-900 p-5 rounded-2xl mb-6 shadow-xl border border-indigo-500/50">
-    <h3 class="text-lg font-bold text-white mb-3 flex items-center">
-        <i class="fas fa-tasks ml-2 text-yellow-400"></i> مهمة القنوات الإجبارية
-    </h3>
-    <p class="text-sm text-indigo-200 mb-4">اشترك في القناتين واضغط على تأكيد للحصول على 0.01$ فوراً!</p>
-    
-    <div class="grid grid-cols-2 gap-3 mb-4">
-        <a href="https://t.me/Channel1" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg">القناة الأولى</a>
-        <a href="https://t.me/Channel2" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg">القناة الثانية</a>
-    </div>
-    
-    <button id="verify-btn" onclick="verifySubscription()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-green-900/20">
-        تأكيد الاشتراك واستلام المكافأة
-    </button>
-</div>
-
-
-        
-        <!-- صفحة الإحالة -->
         <div id="refer-page" class="page-section">
-            <div class="text-center py-4">
-                <i class="fas fa-gift text-6xl text-indigo-500 mb-4"></i>
-                <h2 class="text-2xl font-bold">نظام الإحالة</h2>
-                <p class="text-slate-400 text-sm mt-2">ادعو أصدقائك واربح مع كل مهمة يكملونها</p>
+            <div class="text-center py-6">
+                <div class="inline-block bg-indigo-500/10 p-6 rounded-full mb-4">
+                    <i class="fas fa-user-friends text-5xl text-indigo-500"></i>
+                </div>
+                <h2 class="text-2xl font-bold">برنامج الإحالة</h2>
+                <p class="text-slate-400 text-xs mt-2 px-6">اربح <span class="text-green-400 font-bold">0.005 USDT</span> عن كل صديق يدخل من رابطك ويكمل مهامه</p>
                 
-                <div class="mt-6 bg-slate-800 p-4 rounded-xl border border-slate-700">
-                    <p class="text-xs text-slate-400 mb-2">رابط الدعوة الخاص بك</p>
+                <div class="mt-8 bg-slate-800 p-5 rounded-2xl border border-slate-700 mx-2">
+                    <p class="text-[10px] text-slate-500 mb-3 text-right">رابط الدعوة الخاص بك</p>
                     <div class="flex items-center gap-2">
-                        <input type="text" id="ref-link" class="w-full bg-slate-700 text-indigo-300 text-sm p-3 rounded-lg border border-slate-600" readonly>
-                        <button onclick="copyRef()" class="bg-indigo-600 p-3 rounded-lg hover:bg-indigo-700 transition">
+                        <input type="text" id="ref-link" class="w-full bg-slate-900 text-indigo-300 text-xs p-3 rounded-xl border border-slate-700" readonly>
+                        <button onclick="copyRef()" class="bg-indigo-600 p-3 rounded-xl hover:bg-indigo-700 transition active:scale-90">
                             <i class="fas fa-copy"></i>
                         </button>
                     </div>
                 </div>
                 
-                <div class="mt-6 grid grid-cols-2 gap-4">
-                    <div class="bg-slate-800 p-4 rounded-xl text-center">
-                        <p class="text-[10px] text-slate-400">عدد الإحالات</p>
-                        <p id="total-refs" class="text-xl font-bold">0</p>
+                <div class="mt-6 grid grid-cols-2 gap-4 mx-2">
+                    <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
+                        <p class="text-[10px] text-slate-500">إجمالي الإحالات</p>
+                        <p id="total-refs" class="text-2xl font-black text-white">0</p>
                     </div>
-                    <div class="bg-slate-800 p-4 rounded-xl text-center">
-                        <p class="text-[10px] text-slate-400">أرباح الإحالة</p>
-                        <p id="ref-earnings" class="text-xl font-bold text-green-400">0.00</p>
-                    </div>
-                </div>
-
-                <div class="mt-6 text-right">
-                    <h3 class="font-bold mb-3">كيف يعمل نظام الإحالة؟</h3>
-                    <div class="bg-slate-800/50 p-3 rounded-lg text-sm space-y-2">
-                        <p>• تحصل على <span class="text-yellow-400">0.01 USDT</span> عن كل صديق يكمل جميع المهام العشرة</p>
-                        <p>• يمكنك دعوة عدد غير محدود من الأصدقاء</p>
-                        <p>• يتم إضافة الأرباح فور إكمال صديقك للمهام</p>
+                    <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
+                        <p class="text-[10px] text-slate-500">أرباحي منها</p>
+                        <p id="ref-earnings" class="text-2xl font-black text-green-400">0.00</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- صفحة المحفظة والسحب -->
         <div id="wallet-page" class="page-section">
-            <div class="bg-gradient-to-br from-indigo-900 to-slate-800 p-6 rounded-2xl mb-6 shadow-2xl border border-indigo-500/20">
-                <p class="text-indigo-300 text-sm">الرصيد القابل للسحب</p>
-                <h1 class="text-4xl font-black text-white mt-2" id="withdraw-balance-display">0.0000 <span class="text-sm text-yellow-400 font-normal">USDT</span></h1>
+            <div class="bg-gradient-to-br from-indigo-900 to-indigo-700 p-6 rounded-3xl mb-8 shadow-2xl relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 opacity-10 text-9xl"><i class="fas fa-coins"></i></div>
+                <p class="text-indigo-200 text-sm">إجمالي الرصيد</p>
+                <h1 class="text-4xl font-black text-white mt-2" id="withdraw-balance-display">0.0000 <span class="text-sm font-normal text-indigo-300">USDT</span></h1>
             </div>
             
-            <div class="space-y-4">
+            <div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700 space-y-5">
                 <div>
-                    <label class="text-xs text-slate-400 block mb-1 mr-2">مبلغ السحب (الحد الأدنى 0.5 USDT)</label>
-                    <input type="number" id="withdraw-amount" step="0.01" min="0.5" placeholder="0.50" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
+                    <label class="text-[10px] text-slate-400 block mb-2 mr-1">مبلغ السحب (الحد الأدنى 0.5)</label>
+                    <input type="number" id="withdraw-amount" step="0.1" min="0.5" placeholder="0.50" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 text-white font-bold">
                 </div>
                 <div>
-                    <label class="text-xs text-slate-400 block mb-1 mr-2">Binance Pay ID</label>
-                    <input type="text" id="binance-pay-id" placeholder="أدخل Binance Pay ID الخاص بك" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
+                    <label class="text-[10px] text-slate-400 block mb-2 mr-1">Binance Pay ID</label>
+                    <input type="text" id="binance-pay-id" placeholder="مثال: 123456789" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 text-white font-bold">
                 </div>
-                <div class="text-xs text-slate-400 mr-2 mb-2">
-                    <i class="fas fa-info-circle text-indigo-400 ml-1"></i>
-                    كيف تجد Binance Pay ID؟ الإعدادات > Binance Pay > عرض معرف الدفع
-                </div>
-                <button onclick="handleWithdraw()" class="w-full bg-indigo-600 py-4 rounded-xl font-bold text-lg shadow-lg shadow-indigo-500/20 active:scale-95 transition hover:bg-indigo-700">
-                    طلب السحب عبر Binance Pay
+                <button onclick="handleWithdraw()" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-indigo-900/40 active:scale-95 transition">
+                    سحب عبر Binance Pay
                 </button>
             </div>
 
-            <!-- سجل السحوبات -->
-            <div class="mt-8">
-                <h3 class="font-bold mb-4 flex items-center gap-2">
-                    <i class="fas fa-history text-indigo-400"></i>
-                    سجل السحوبات
+            <div class="mt-10">
+                <h3 class="font-bold text-sm mb-4 px-2 flex items-center gap-2">
+                    <i class="fas fa-history text-indigo-400"></i> تاريخ العمليات
                 </h3>
-                <div id="withdrawals-history" class="space-y-2">
-                    <!-- سيتم تعبئتها عبر JavaScript -->
-                </div>
+                <div id="withdrawals-history" class="space-y-3 px-1"></div>
             </div>
         </div>
 
     </main>
 
-    <!-- شريط التنقل السفلي -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around items-center h-20 px-4">
-        <button onclick="showPage('home-page', this)" class="nav-item active flex flex-col items-center gap-1 transition-all">
-            <i class="fas fa-th-large text-xl"></i>
-            <span class="text-[10px]">المهام</span>
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 flex justify-around items-center h-22 pb-6 pt-3 px-6 z-20">
+        <button onclick="showPage('home-page', this)" class="nav-item active flex flex-col items-center gap-1">
+            <i class="fas fa-tasks text-xl"></i>
+            <span class="text-[10px] font-bold">المهام</span>
         </button>
-        <button onclick="showPage('refer-page', this)" class="nav-item flex flex-col items-center gap-1 transition-all">
-            <i class="fas fa-user-plus text-xl"></i>
-            <span class="text-[10px]">الإحالة</span>
+        <button onclick="showPage('refer-page', this)" class="nav-item flex flex-col items-center gap-1">
+            <i class="fas fa-users text-xl"></i>
+            <span class="text-[10px] font-bold">الإحالة</span>
         </button>
-        <button onclick="showPage('wallet-page', this)" class="nav-item flex flex-col items-center gap-1 transition-all">
+        <button onclick="showPage('wallet-page', this)" class="nav-item flex flex-col items-center gap-1">
             <i class="fas fa-wallet text-xl"></i>
-            <span class="text-[10px]">السحب</span>
+            <span class="text-[10px] font-bold">المحفظة</span>
         </button>
     </nav>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.enableClosingConfirmation();
 
-        // استخدم Render URL - قم بتغييره إلى رابط السيرفر الخاص بك
-        const API_URL = "https://botserv-1.onrender.com"; // ✅ صحيح // للتجربة المحلية
+        const API_URL = "https://botserv-1.onrender.com"; 
         const userId = tg.initDataUnsafe?.user?.id?.toString() || "DEBUG_USER";
         const startParam = tg.initDataUnsafe?.start_param || null;
 
         let userTasksStatus = [];
         let currentAdProgress = { taskId: null, count: 0 };
-        let refreshInterval;
 
-        // تهيئة التطبيق
         async function init() {
-            // إظهار شاشة التحميل
             document.getElementById('tasks-loading').classList.remove('hidden');
             document.getElementById('tasks-container').classList.add('hidden');
             document.getElementById('tasks-error').classList.add('hidden');
-            document.getElementById('progress-section').classList.add('hidden');
             
             try {
-                console.log('جاري الاتصال بالخادم:', API_URL);
-                
-                const response = await fetch(`${API_URL}/api/user/${userId}${startParam ? `?ref=${startParam}` : ''}`);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
+                const url = `${API_URL}/api/user/${userId}${startParam ? `?ref=${startParam}` : ''}`;
+                const response = await fetch(url);
                 const data = await response.json();
-                console.log('تم استلام البيانات:', data);
                 
                 updateUI(data);
-                startRealTimeUpdates();
                 
-                // إخفاء التحميل وإظهار المهام
                 document.getElementById('tasks-loading').classList.add('hidden');
                 document.getElementById('tasks-container').classList.remove('hidden');
-                
             } catch (error) {
-                console.error('Init error:', error);
-                
-                // إخفاء التحميل وإظهار رسالة الخطأ
                 document.getElementById('tasks-loading').classList.add('hidden');
                 document.getElementById('tasks-error').classList.remove('hidden');
-                
-                tg.showAlert("❌ فشل الاتصال بالخادم. تأكد من اتصالك بالإنترنت.");
             }
         }
 
-        // تحديث الواجهة
         function updateUI(data) {
-            document.getElementById('balance').innerText = data.balance.toFixed(4);
-            document.getElementById('withdraw-balance-display').innerText = data.balance.toFixed(4);
+            document.getElementById('balance').innerText = (data.balance || 0).toFixed(4);
+            document.getElementById('withdraw-balance-display').innerText = (data.balance || 0).toFixed(4);
             document.getElementById('total-refs').innerText = data.referrals_count || 0;
-            document.getElementById('ref-earnings').innerText = (data.referrals_earnings || 0).toFixed(2);
+            document.getElementById('ref-earnings').innerText = (data.referrals_earnings || 0).toFixed(3);
             
-         // 1. ضع اسم معرف البوت الخاص بك هنا مكان ayoub_mahbous (بدون علامة @)
-const botUsername = 'ADCash_dzbot'; 
+            // رابط الإحالة مع المعرف الصحيح
+            const botUsername = 'ADCash_dzbot'; 
+            document.getElementById('ref-link').value = `https://t.me/${botUsername}?start=${userId}`;
 
-// 2. إنشاء رابط الإحالة الصحيح
-const refLink = `https://t.me/${botUsername}?start=${userId}`;
+            // إخفاء مهمة القنوات إذا اكتملت
+            if (data.joined_channels) {
+                document.getElementById('special-task-container').style.display = 'none';
+            }
 
-// 3. وضع الرابط في الخانة المخصصة له في الصفحة
-document.getElementById('ref-link').value = refLink;
-
-// استكمال بقية الكود
-userTasksStatus = data.tasks || [];
-            // حساب عدد المهام المكتملة
+            userTasksStatus = data.tasks || [];
             const completedTasks = userTasksStatus.filter(t => t.completed).length;
             
-            // إظهار شريط التقدم إذا كان هناك مهام مكتملة
             if (completedTasks > 0) {
                 document.getElementById('progress-section').classList.remove('hidden');
                 document.getElementById('tasks-progress').innerText = `${completedTasks}/10`;
                 document.getElementById('progress-bar').style.width = `${(completedTasks / 10) * 100}%`;
-                
-                if (completedTasks === 10) {
-                    document.getElementById('progress-message').innerText = '🎉 تهانينا! أكملت جميع المهام وربحت 0.01 USDT';
-                } else {
-                    const remaining = 10 - completedTasks;
-                    document.getElementById('progress-message').innerText = `⏳ متبقي ${remaining} مهام للفوز بـ 0.01 USDT`;
-                }
+                document.getElementById('progress-message').innerText = completedTasks === 10 ? '🎉 أحسنت! غداً مهام جديدة' : `متبقي ${10-completedTasks} مهام للمكافأة`;
             }
             
             renderTasks();
             renderWithdrawalsHistory(data.withdrawals || []);
         }
 
-        // عرض المهام
+        async function verifySubscription() {
+            const btn = document.getElementById('verify-btn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري التحقق...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/verify-channels`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const result = await response.json();
+                tg.showAlert(result.message);
+                if (result.success) await refreshUserData();
+            } catch (e) {
+                tg.showAlert("خطأ في الاتصال");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
         function renderTasks() {
             const container = document.getElementById('tasks-container');
             container.innerHTML = '';
 
-            if (!userTasksStatus || userTasksStatus.length === 0) {
-                container.innerHTML = '<p class="text-center text-slate-400 py-8">لا توجد مهام متاحة حالياً</p>';
-                return;
-            }
-
-            // حساب عدد المهام المكتملة
-            const completedCount = userTasksStatus.filter(t => t.completed).length;
-            const allCompleted = completedCount === 10;
-
             for (let i = 1; i <= 10; i++) {
-                const task = userTasksStatus.find(t => t.task_id === i) || { completed: false, cooldown_until: null };
+                const task = userTasksStatus.find(t => t.task_id === i) || { completed: false };
                 const isCompleted = task.completed;
-                const cooldownUntil = task.cooldown_until ? new Date(task.cooldown_until) : null;
-                const now = new Date();
-                const isInCooldown = cooldownUntil && cooldownUntil > now;
-                
-                let timeRemaining = '';
-                if (isInCooldown) {
-                    const diffMs = cooldownUntil - now;
-                    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-                    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                    timeRemaining = `${hours}:${minutes.toString().padStart(2, '0')}`;
-                }
+                const cooldown = task.cooldown_until && new Date(task.cooldown_until) > new Date();
                 
                 const card = document.createElement('div');
-                card.className = `p-4 rounded-xl border ${isCompleted ? 'bg-green-900/20 border-green-500/30' : isInCooldown ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-800 border-indigo-500/30'} flex justify-between items-center`;
+                card.className = `p-4 rounded-2xl border transition-all ${isCompleted ? 'bg-green-900/10 border-green-500/20' : 'bg-slate-800/80 border-slate-700'}`;
                 
-                let actionBtn = '';
+                let btnHtml = '';
                 if (isCompleted) {
-                    actionBtn = `<span class="text-green-400 text-sm"><i class="fas fa-check-circle ml-1"></i>مكتملة</span>`;
-                } else if (isInCooldown) {
-                    actionBtn = `<span class="text-slate-500 text-sm font-mono">⏰ ${timeRemaining}</span>`;
+                    btnHtml = '<span class="text-green-400 text-xs font-bold"><i class="fas fa-check ml-1"></i>تم</span>';
+                } else if (cooldown) {
+                    btnHtml = '<span class="text-slate-500 text-[10px]">⏰ قريباً</span>';
                 } else {
-                    const isProcessing = currentAdProgress.taskId === i;
-                    let btnLabel, btnClass;
-                    
-                    if (isProcessing) {
-                        if (currentAdProgress.count >= 3) {
-                            btnLabel = 'تأكيد المشاهدة ✅';
-                            btnClass = 'bg-yellow-500 text-black pulse';
-                        } else {
-                            btnLabel = `شاهد إعلان ${currentAdProgress.count}/3`;
-                            btnClass = 'bg-indigo-600';
-                        }
-                    } else {
-                        btnLabel = 'شاهد إعلان';
-                        btnClass = 'bg-indigo-600';
-                    }
-                    
-                    actionBtn = `<button onclick="handleTaskClick(${i})" class="${btnClass} px-4 py-2 rounded-lg text-xs font-bold transition-all hover:opacity-90">${btnLabel}</button>`;
+                    const active = currentAdProgress.taskId === i;
+                    const label = active ? (currentAdProgress.count >= 3 ? 'تأكيد ✅' : `إعلان ${currentAdProgress.count}/3`) : 'ابدأ المهمة';
+                    const color = active && currentAdProgress.count >= 3 ? 'bg-yellow-500 text-black' : 'bg-indigo-600';
+                    btnHtml = `<button onclick="handleTaskClick(${i})" class="${color} px-4 py-2 rounded-xl text-[10px] font-bold shadow-lg">${label}</button>`;
                 }
 
-                card.innerHTML = `
-                    <div>
-                        <p class="text-sm font-bold">المهمة ${i}</p>
-                        <p class="text-[10px] text-slate-400">مشاهدة 3 إعلانات</p>
-                    </div>
-                    ${actionBtn}
-                `;
-                
+                card.innerHTML = `<div class="flex justify-between items-center">
+                    <div><p class="text-sm font-bold">مهمة الربح #${i}</p><p class="text-[9px] text-slate-500 italic">شاهد 3 فيديوهات</p></div>
+                    ${btnHtml}
+                </div>`;
                 container.appendChild(card);
-            }
-
-            // إذا كانت جميع المهام مكتملة، أضف رسالة
-            if (allCompleted) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'mt-4 bg-green-600/20 p-4 rounded-lg border border-green-500/30 text-center';
-                messageDiv.innerHTML = `
-                    <i class="fas fa-trophy text-3xl text-yellow-400 mb-2"></i>
-                    <p class="text-green-400">🎉 تهانينا! أكملت جميع المهام</p>
-                    <p class="text-sm text-slate-300">تمت إضافة 0.01 USDT إلى رصيدك</p>
-                    <p class="text-xs text-slate-400 mt-2">عد غداً للمهام الجديدة</p>
-                `;
-                container.appendChild(messageDiv);
             }
         }
 
-        // معالجة النقر على المهمة
         async function handleTaskClick(taskId) {
-            // إذا كان المستخدم قد أكمل 3 إعلانات لهذه المهمة
             if (currentAdProgress.taskId === taskId && currentAdProgress.count >= 3) {
                 try {
-                    const response = await fetch(`${API_URL}/api/complete-task`, {
+                    const r = await fetch(`${API_URL}/api/complete-task`, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ user_id: userId, task_id: taskId })
                     });
-                    
-                    const data = await response.json();
-                    
-                    if (data.success) {
+                    const d = await r.json();
+                    if (d.success) {
                         currentAdProgress = { taskId: null, count: 0 };
-                        
-                        // التحقق مما إذا كانت جميع المهام مكتملة
-                        const completedTasks = userTasksStatus.filter(t => t.completed).length + 1;
-                        
-                        if (completedTasks === 10) {
-                            tg.showAlert("🎉 ألف مبروك! أكملت جميع المهام العشرة وربحت 0.01 USDT!");
-                        } else {
-                            tg.showAlert(`✅ تم إكمال المهمة ${taskId}! متبقي ${10 - completedTasks} مهام للفوز بالمكافأة`);
-                        }
-                        
+                        tg.showAlert("✅ مهمة ناجحة!");
                         await refreshUserData();
-                    } else {
-                        tg.showAlert(data.message || "حدث خطأ، حاول مرة أخرى");
                     }
-                } catch (error) {
-                    tg.showAlert("❌ فشل الاتصال بالخادم");
-                }
+                } catch (e) { tg.showAlert("خطأ في السيرفر"); }
                 return;
             }
 
-            // تشغيل الإعلان
             if (typeof show_10673309 === 'function') {
-                try {
-                    await show_10673309();
-                    
-                    if (currentAdProgress.taskId !== taskId) {
-                        currentAdProgress = { taskId: taskId, count: 1 };
-                    } else {
-                        currentAdProgress.count++;
-                    }
-                    
+                show_10673309().then(() => {
+                    if (currentAdProgress.taskId !== taskId) currentAdProgress = { taskId: taskId, count: 1 };
+                    else currentAdProgress.count++;
                     renderTasks();
-                    
-                    if (currentAdProgress.count >= 3) {
-                        tg.showAlert(`🎬 أكملت 3 إعلانات للمهمة ${taskId}! اضغط على "تأكيد المشاهدة"`);
-                    }
-                } catch (error) {
-                    tg.showAlert("❌ فشل تشغيل الإعلان");
-                }
-            } else {
-                tg.showAlert("❌ مكتبة الإعلانات غير متوفرة");
+                }).catch(() => tg.showAlert("فشل تشغيل الإعلان"));
             }
         }
 
-        // عرض سجل السحوبات
-        function renderWithdrawalsHistory(withdrawals) {
-            const container = document.getElementById('withdrawals-history');
-            
-            if (!withdrawals || withdrawals.length === 0) {
-                container.innerHTML = '<p class="text-center text-slate-500 py-4">لا توجد سحوبات سابقة</p>';
-                return;
-            }
-            
-            container.innerHTML = withdrawals.map(w => {
-                const statusClass = {
-                    'pending': 'text-yellow-400',
-                    'completed': 'text-green-400',
-                    'rejected': 'text-red-400'
-                }[w.status] || 'text-slate-400';
-                
-                const statusText = {
-                    'pending': 'قيد الانتظار',
-                    'completed': 'تم الدفع',
-                    'rejected': 'مرفوض'
-                }[w.status] || w.status;
-                
-                const date = new Date(w.created_at).toLocaleDateString('ar-EG');
-                
-                return `
-                    <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700 flex justify-between items-center">
-                        <div>
-                            <p class="font-bold text-yellow-400">${w.amount} USDT</p>
-                            <p class="text-xs text-slate-400">Binance Pay: ${w.binance_pay_id}</p>
-                            <p class="text-xs text-slate-400">${date}</p>
-                        </div>
-                        <span class="${statusClass} text-sm">${statusText}</span>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // معالجة طلب السحب
         async function handleWithdraw() {
             const amount = parseFloat(document.getElementById('withdraw-amount').value);
-            const binancePayId = document.getElementById('binance-pay-id').value.trim();
+            const payId = document.getElementById('binance-pay-id').value.trim();
             
-            if (isNaN(amount) || amount < 0.5) {
-                tg.showAlert("❌ الحد الأدنى للسحب هو 0.5 USDT");
-                return;
-            }
-            
-            if (!binancePayId || binancePayId.length < 5) {
-                tg.showAlert("❌ يرجى إدخال Binance Pay ID صحيح");
-                return;
-            }
-
-            // التحقق من أن Binance Pay ID يتكون من أرقام فقط
-            if (!/^\d+$/.test(binancePayId)) {
-                tg.showAlert("❌ Binance Pay ID يجب أن يكون أرقاماً فقط");
-                return;
-            }
+            if (amount < 0.5) return tg.showAlert("الحد الأدنى 0.5 USDT");
+            if (!/^\d+$/.test(payId)) return tg.showAlert("ID غير صحيح");
 
             try {
-                const response = await fetch(`${API_URL}/api/withdraw`, {
+                const r = await fetch(`${API_URL}/api/withdraw`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        user_id: userId,
-                        amount: amount,
-                        binance_pay_id: binancePayId
-                    })
+                    body: JSON.stringify({ user_id: userId, amount, binance_pay_id: payId })
                 });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    tg.showAlert("✅ تم إرسال طلب السحب بنجاح! سنقوم بالدفع خلال 24 ساعة عبر Binance Pay.");
-                    document.getElementById('withdraw-amount').value = '';
-                    document.getElementById('binance-pay-id').value = '';
-                    await refreshUserData();
-                } else {
-                    tg.showAlert(data.message || "❌ فشل طلب السحب");
-                }
-            } catch (error) {
-                tg.showAlert("❌ فشل الاتصال بالخادم");
-            }
+                const d = await r.json();
+                tg.showAlert(d.message);
+                if(d.success) await refreshUserData();
+            } catch (e) { tg.showAlert("فشل الاتصال"); }
         }
 
-        // نسخ رابط الإحالة
-        function copyRef() {
-            const link = document.getElementById('ref-link');
-            link.select();
-            navigator.clipboard.writeText(link.value);
-            tg.showAlert("📋 تم نسخ الرابط!");
+        function renderWithdrawalsHistory(list) {
+            const c = document.getElementById('withdrawals-history');
+            if(!list.length) return c.innerHTML = '<p class="text-center text-slate-600 text-xs py-4">لا يوجد سحوبات بعد</p>';
+            c.innerHTML = list.map(w => `<div class="bg-slate-800/30 p-4 rounded-xl border border-slate-700/50 flex justify-between items-center text-xs">
+                <div><p class="font-bold text-yellow-500">${w.amount} USDT</p><p class="text-[9px] text-slate-500">${new Date(w.created_at).toLocaleDateString()}</p></div>
+                <span class="${w.status === 'pending' ? 'text-yellow-500' : 'text-green-500'}">${w.status === 'pending' ? 'معلق' : 'تم'}</span>
+            </div>`).join('');
         }
 
-        // تحديث بيانات المستخدم
         async function refreshUserData() {
             try {
-                const response = await fetch(`${API_URL}/api/user/${userId}`);
-                const data = await response.json();
-                updateUI(data);
-            } catch (error) {
-                console.error('Refresh error:', error);
-            }
+                const r = await fetch(`${API_URL}/api/user/${userId}`);
+                const d = await r.json();
+                updateUI(d);
+            } catch (e) {}
         }
 
-async function verifySubscription() {
-    const btn = document.getElementById('verify-btn');
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
-    
-    try {
-        const response = await fetch(`${API_URL}/api/verify-channels`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: userId })
-        });
-        const result = await response.json();
-        
-        if (result.success) {
-            tg.showAlert(result.message);
-            refreshUserData(); // تحديث الرصيد في الواجهة
-        } else {
-            tg.showConfirm(result.message + "\nهل تريد فتح القنوات الآن؟", (ok) => {
-                if(ok) window.open("https://t.me/اسم_قناتك"); 
-            });
-        }
-    } catch (error) {
-        tg.showAlert("حدث خطأ في الاتصال");
-    } finally {
-        btn.innerHTML = 'تأكيد الاشتراك';
-    }
-}
-
-        
-        // تحديث实时
-        function startRealTimeUpdates() {
-            if (refreshInterval) clearInterval(refreshInterval);
-            refreshInterval = setInterval(refreshUserData, 30000); // كل 30 ثانية
-        }
-
-        // تغيير الصفحة
-        function showPage(pageId, btn) {
+        function showPage(id, btn) {
             document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            
+            document.getElementById(id).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             btn.classList.add('active');
-            
-            if (pageId === 'wallet-page') {
-                refreshUserData(); // تحديث بيانات السحب عند فتح الصفحة
-            }
         }
 
-        // بدء التطبيق
+        function copyRef() {
+            const input = document.getElementById('ref-link');
+            input.select();
+            navigator.clipboard.writeText(input.value);
+            tg.showAlert("✅ تم النسخ بنجاح!");
+        }
+
         init();
+        setInterval(refreshUserData, 30000);
     </script>
 </body>
 </html>
-
-
