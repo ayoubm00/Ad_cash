@@ -76,6 +76,25 @@
             </div>
         </div>
 
+
+<div class="bg-gradient-to-r from-slate-800 to-indigo-900 p-5 rounded-2xl mb-6 shadow-xl border border-indigo-500/50">
+    <h3 class="text-lg font-bold text-white mb-3 flex items-center">
+        <i class="fas fa-tasks ml-2 text-yellow-400"></i> مهمة القنوات الإجبارية
+    </h3>
+    <p class="text-sm text-indigo-200 mb-4">اشترك في القناتين واضغط على تأكيد للحصول على 0.01$ فوراً!</p>
+    
+    <div class="grid grid-cols-2 gap-3 mb-4">
+        <a href="https://t.me/Channel1" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg">القناة الأولى</a>
+        <a href="https://t.me/Channel2" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg">القناة الثانية</a>
+    </div>
+    
+    <button id="verify-btn" onclick="verifySubscription()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-green-900/20">
+        تأكيد الاشتراك واستلام المكافأة
+    </button>
+</div>
+
+
+        
         <!-- صفحة الإحالة -->
         <div id="refer-page" class="page-section">
             <div class="text-center py-4">
@@ -505,6 +524,34 @@ userTasksStatus = data.tasks || [];
             }
         }
 
+async function verifySubscription() {
+    const btn = document.getElementById('verify-btn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
+    
+    try {
+        const response = await fetch(`${API_URL}/api/verify-channels`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId })
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            tg.showAlert(result.message);
+            refreshUserData(); // تحديث الرصيد في الواجهة
+        } else {
+            tg.showConfirm(result.message + "\nهل تريد فتح القنوات الآن؟", (ok) => {
+                if(ok) window.open("https://t.me/اسم_قناتك"); 
+            });
+        }
+    } catch (error) {
+        tg.showAlert("حدث خطأ في الاتصال");
+    } finally {
+        btn.innerHTML = 'تأكيد الاشتراك';
+    }
+}
+
+        
         // تحديث实时
         function startRealTimeUpdates() {
             if (refreshInterval) clearInterval(refreshInterval);
@@ -529,4 +576,5 @@ userTasksStatus = data.tasks || [];
     </script>
 </body>
 </html>
+
 
