@@ -319,7 +319,6 @@
                     const data = await response.json();
                     if (data.success) {
                         currentAdProgress = { taskId: null, count: 0 };
-                        tg.showAlert("✅ تمت المهمة!");
                         showToast("✅ تم إكمال المهمة بنجاح", "success");
                         refreshUserData();
                     }
@@ -361,7 +360,6 @@
                 showToast(result.message, result.success ? 'success' : 'error');
                 if (result.success) refreshUserData();
             } catch (e) { 
-                tg.showAlert("خطأ في الاتصال");
                 showToast("خطأ في الاتصال بالخادم", "error");
             }
             
@@ -376,6 +374,7 @@
             
             if (!amount || amount < 0.5) {
                 tg.showAlert(`❌ الحد الأدنى للسحب 0.5 USDT`);
+                 showToast("❌ الحد الأدنى للسحب 0.5 USDT");
                 return;
             }
             
@@ -408,7 +407,6 @@
                     refreshUserData();
                 }
             } catch (e) {
-                tg.showAlert("خطأ في الاتصال");
                 showToast("خطأ في الاتصال بالخادم", "error");
             }
             
@@ -494,5 +492,6 @@
     </script>
 </body>
 </html>
+
 
 
