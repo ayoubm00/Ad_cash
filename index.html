@@ -373,13 +373,12 @@
             const btn = document.getElementById('withdraw-btn');
             
             if (!amount || amount < 0.5) {
-                tg.showAlert(`❌ الحد الأدنى للسحب 0.5 USDT`);
                  showToast("❌ الحد الأدنى للسحب 0.5 USDT");
                 return;
             }
             
             if (!binancePayId || binancePayId.length < 5) {
-                tg.showAlert(`❌ يرجى إدخال Binance Pay ID صحيح`);
+                 showToast(`❌ يرجى إدخال Binance Pay ID صحيح`);
                 return;
             }
             
@@ -492,6 +491,7 @@
     </script>
 </body>
 </html>
+
 
 
 
