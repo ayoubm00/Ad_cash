@@ -49,10 +49,20 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-     .task-completed {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    border-color: #86efac;
+.task-completed {
+    background: #22c55e;
+    border: 2px solid #86efac;
     box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.3);
+}
+
+.task-completed .text-sm,
+.task-completed .text-xs,
+.task-completed .font-bold {
+    color: #14532d;
+}
+
+.task-completed span.text-green-400 {
+    color: #14532d !important;
 }
     </style>
 </head>
@@ -503,4 +513,5 @@
     </script>
 </body>
 </html>
+
 
