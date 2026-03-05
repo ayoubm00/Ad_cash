@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADCash Pro - v2.0</title>
+    <title>ADCash Pro - v3.0</title>
     <script src='//libtl.com/sdk.js' data-zone='10673309' data-sdk='show_10673309'></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -20,6 +20,39 @@
         .progress-bar { transition: width 0.5s ease; }
         .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 8px; height: 60px; }
         @keyframes loading { 0% {background-position: 200% 0;} 100% {background-position: -200% 0;} }
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 12px 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translate(-50%, 20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        .loading-spinner {
+            border: 3px solid #334155;
+            border-top: 3px solid #6366f1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .task-completed {
+            background: linear-gradient(135deg, #14532d, #166534);
+            border-color: #4ade80;
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col">
@@ -45,8 +78,8 @@
                 </h3>
                 <p class="text-sm text-indigo-200 mb-4">اشترك في القنوات واضغط على تأكيد للحصول على 0.01$ فوراً!</p>
                 <div class="grid grid-cols-2 gap-3 mb-4">
-                    <a href="https://t.me/AD_Withdraw" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg">القناة الأولى</a>
-                    <a href="https://t.me/AD0_News" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg">القناة الثانية</a>
+                    <a href="https://t.me/AD_Withdraw" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition">القناة الأولى</a>
+                    <a href="https://t.me/AD0_News" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition">القناة الثانية</a>
                 </div>
                 <button id="verify-btn" onclick="verifySubscription()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-green-900/20">
                     تأكيد الاشتراك واستلام المكافأة
@@ -80,7 +113,7 @@
             <div id="tasks-error" class="hidden text-center py-8">
                 <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-3"></i>
                 <p class="text-red-400">فشل تحميل المهام</p>
-                <button onclick="init()" class="mt-3 bg-indigo-600 px-4 py-2 rounded-lg text-sm">إعادة المحاولة</button>
+                <button onclick="init()" class="mt-3 bg-indigo-600 px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 transition">إعادة المحاولة</button>
             </div>
         </div>
 
@@ -88,6 +121,10 @@
             <div class="text-center py-4">
                 <i class="fas fa-gift text-6xl text-indigo-500 mb-4"></i>
                 <h2 class="text-2xl font-bold">نظام الإحالة</h2>
+                <div class="mt-2 bg-slate-700/50 p-3 rounded-lg text-sm text-indigo-200">
+                    <i class="fas fa-info-circle ml-1"></i>
+                    احصل على 0.005$ عن كل شخص يكمل 10 مهام
+                </div>
                 <div class="mt-6 bg-slate-800 p-4 rounded-xl border border-slate-700">
                     <p class="text-xs text-slate-400 mb-2 text-right">رابط الدعوة الخاص بك</p>
                     <div class="flex items-center gap-2">
@@ -102,7 +139,7 @@
                     </div>
                     <div class="bg-slate-800 p-4 rounded-xl text-center">
                         <p class="text-[10px] text-slate-400">أرباح الإحالة</p>
-                        <p id="ref-earnings" class="text-xl font-bold text-green-400">0.00</p>
+                        <p id="ref-earnings" class="text-xl font-bold text-green-400">0.0000</p>
                     </div>
                 </div>
             </div>
@@ -114,9 +151,14 @@
                 <h1 class="text-4xl font-black text-white mt-2" id="withdraw-balance-display">0.0000 <span class="text-sm text-yellow-400 font-normal">USDT</span></h1>
             </div>
             <div class="space-y-4">
-                <input type="number" id="withdraw-amount" step="0.01" min="0.5" placeholder="المبلغ (الأدنى 0.5)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
+                <div>
+                    <input type="number" id="withdraw-amount" step="0.01" min="0.5" placeholder="المبلغ (الأدنى 0.5)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
+                    <p class="text-xs text-slate-500 mt-1">الحد الأدنى: 0.5 USDT</p>
+                </div>
                 <input type="text" id="binance-pay-id" placeholder="Binance Pay ID" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
-                <button onclick="handleWithdraw()" class="w-full bg-indigo-600 py-4 rounded-xl font-bold text-lg hover:bg-indigo-700 transition">طلب السحب</button>
+                <button onclick="handleWithdraw()" id="withdraw-btn" class="w-full bg-indigo-600 py-4 rounded-xl font-bold text-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    طلب السحب
+                </button>
             </div>
             <div class="mt-8">
                 <h3 class="font-bold mb-4 flex items-center gap-2"><i class="fas fa-history text-indigo-400"></i> سجل السحوبات</h3>
@@ -140,8 +182,13 @@
         </button>
     </nav>
 
+    <div id="toast" class="toast hidden"></div>
+
     <script>
         const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.enableClosingConfirmation();
+        
         const API_URL = "https://botserv-1.onrender.com"; 
         const userId = tg.initDataUnsafe?.user?.id?.toString() || "DEBUG_USER";
         const startParam = tg.initDataUnsafe?.start_param || null;
@@ -149,17 +196,39 @@
 
         let userTasksStatus = [];
         let currentAdProgress = { taskId: null, count: 0 };
+        let refreshInterval;
+
+        // إظهار رسالة منبثقة
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = message;
+            toast.classList.remove('hidden');
+            
+            if (type === 'success') {
+                toast.style.background = '#14532d';
+                toast.style.borderColor = '#4ade80';
+            } else {
+                toast.style.background = '#7f1d1d';
+                toast.style.borderColor = '#f87171';
+            }
+            
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
 
         async function init() {
             document.getElementById('tasks-loading').classList.remove('hidden');
             document.getElementById('tasks-container').classList.add('hidden');
             try {
-                const response = await fetch(`${API_URL}/api/user/${userId}${startParam ? `?ref=${startParam}` : ''}`);
+                const url = `${API_URL}/api/user/${userId}${startParam ? `?ref=${startParam}` : ''}`;
+                const response = await fetch(url);
                 const data = await response.json();
                 updateUI(data);
                 document.getElementById('tasks-loading').classList.add('hidden');
                 document.getElementById('tasks-container').classList.remove('hidden');
             } catch (error) {
+                console.error('Init error:', error);
                 document.getElementById('tasks-loading').classList.add('hidden');
                 document.getElementById('tasks-error').classList.remove('hidden');
             }
@@ -169,7 +238,7 @@
             document.getElementById('balance').innerText = data.balance.toFixed(4);
             document.getElementById('withdraw-balance-display').innerText = data.balance.toFixed(4);
             document.getElementById('total-refs').innerText = data.referrals_count || 0;
-            document.getElementById('ref-earnings').innerText = (data.referrals_earnings || 0).toFixed(2);
+            document.getElementById('ref-earnings').innerText = (data.referrals_earnings || 0).toFixed(4);
             document.getElementById('ref-link').value = `https://t.me/${botUsername}?start=${userId}`;
             
             if (data.joined_channels) {
@@ -178,12 +247,16 @@
 
             userTasksStatus = data.tasks || [];
             const completedTasks = userTasksStatus.filter(t => t.completed).length;
+            
             if (completedTasks > 0) {
                 document.getElementById('progress-section').classList.remove('hidden');
                 document.getElementById('tasks-progress').innerText = `${completedTasks}/10`;
                 document.getElementById('progress-bar').style.width = `${(completedTasks / 10) * 100}%`;
-                document.getElementById('progress-message').innerText = completedTasks === 10 ? 'تهانينا! أكملت المهام' : `متبقي ${10-completedTasks} مهام للمكافأة`;
+                document.getElementById('progress-message').innerText = completedTasks === 10 ? 
+                    'تهانينا! أكملت المهام' : 
+                    `متبقي ${10-completedTasks} مهام للمكافأة`;
             }
+            
             renderTasks();
             renderWithdrawalsHistory(data.withdrawals || []);
         }
@@ -191,54 +264,92 @@
         function renderTasks() {
             const container = document.getElementById('tasks-container');
             container.innerHTML = '';
+            
             for (let i = 1; i <= 10; i++) {
                 const task = userTasksStatus.find(t => t.task_id === i) || { completed: false };
                 const isCompleted = task.completed;
+                const cooldownUntil = task.cooldown_until ? new Date(task.cooldown_until) : null;
+                const now = new Date();
+                
+                let timeLeft = '';
+                if (cooldownUntil && cooldownUntil > now) {
+                    const hoursLeft = Math.ceil((cooldownUntil - now) / (1000 * 60 * 60));
+                    timeLeft = `<span class="text-xs text-slate-500">(متبقي ${hoursLeft} ساعة)</span>`;
+                }
+                
                 const card = document.createElement('div');
-                card.className = `p-4 rounded-xl border ${isCompleted ? 'bg-green-900/20 border-green-500/30' : 'bg-slate-800 border-indigo-500/30'} flex justify-between items-center`;
+                card.className = `p-4 rounded-xl border ${isCompleted ? 'task-completed' : 'bg-slate-800 border-indigo-500/30'} flex justify-between items-center transition-all`;
                 
                 let actionBtn = '';
                 if (isCompleted) {
-                    actionBtn = `<span class="text-green-400 text-sm"><i class="fas fa-check-circle ml-1"></i>مكتملة</span>`;
+                    actionBtn = `
+                        <div class="text-left">
+                            <span class="text-green-400 text-sm flex items-center">
+                                <i class="fas fa-check-circle ml-1"></i>مكتملة
+                            </span>
+                            ${timeLeft}
+                        </div>
+                    `;
                 } else {
                     const isProcessing = currentAdProgress.taskId === i;
                     let btnLabel = isProcessing ? (currentAdProgress.count >= 3 ? 'تأكيد ✅' : `إعلان ${currentAdProgress.count}/3`) : 'شاهد إعلان';
                     let btnClass = isProcessing && currentAdProgress.count >= 3 ? 'bg-yellow-500 text-black pulse' : 'bg-indigo-600';
-                    actionBtn = `<button onclick="handleTaskClick(${i})" class="${btnClass} px-4 py-2 rounded-lg text-xs font-bold transition-all">${btnLabel}</button>`;
+                    actionBtn = `<button onclick="handleTaskClick(${i})" class="${btnClass} px-4 py-2 rounded-lg text-xs font-bold transition-all hover:opacity-90">${btnLabel}</button>`;
                 }
 
-                card.innerHTML = `<div><p class="text-sm font-bold">المهمة ${i}</p><p class="text-[10px] text-slate-400">مشاهدة 3 إعلانات</p></div>${actionBtn}`;
+                card.innerHTML = `
+                    <div>
+                        <p class="text-sm font-bold">المهمة ${i}</p>
+                        <p class="text-[10px] text-slate-400">مشاهدة 3 إعلانات</p>
+                    </div>
+                    ${actionBtn}
+                `;
                 container.appendChild(card);
             }
         }
 
         async function handleTaskClick(taskId) {
             if (currentAdProgress.taskId === taskId && currentAdProgress.count >= 3) {
-                const response = await fetch(`${API_URL}/api/complete-task`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ user_id: userId, task_id: taskId })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    currentAdProgress = { taskId: null, count: 0 };
-                    tg.showAlert("✅ تمت المهمة!");
-                    refreshUserData();
+                try {
+                    const response = await fetch(`${API_URL}/api/complete-task`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ user_id: userId, task_id: taskId })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        currentAdProgress = { taskId: null, count: 0 };
+                        tg.showAlert("✅ تمت المهمة!");
+                        showToast("✅ تم إكمال المهمة بنجاح", "success");
+                        refreshUserData();
+                    }
+                } catch (error) {
+                    tg.showAlert("❌ حدث خطأ، حاول مرة أخرى");
                 }
                 return;
             }
+            
             if (typeof show_10673309 === 'function') {
-                show_10673309().then(() => {
-                    if (currentAdProgress.taskId !== taskId) currentAdProgress = { taskId: taskId, count: 1 };
-                    else currentAdProgress.count++;
+                try {
+                    await show_10673309();
+                    if (currentAdProgress.taskId !== taskId) {
+                        currentAdProgress = { taskId: taskId, count: 1 };
+                    } else {
+                        currentAdProgress.count++;
+                    }
                     renderTasks();
-                });
+                } catch (error) {
+                    console.error('Ad error:', error);
+                }
             }
         }
 
         async function verifySubscription() {
             const btn = document.getElementById('verify-btn');
+            const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
+            btn.disabled = true;
+            
             try {
                 const response = await fetch(`${API_URL}/api/verify-channels`, {
                     method: 'POST',
@@ -247,15 +358,72 @@
                 });
                 const result = await response.json();
                 tg.showAlert(result.message);
+                showToast(result.message, result.success ? 'success' : 'error');
                 if (result.success) refreshUserData();
-            } catch (e) { tg.showAlert("خطأ في الاتصال"); }
-            btn.innerHTML = 'تأكيد الاشتراك';
+            } catch (e) { 
+                tg.showAlert("خطأ في الاتصال");
+                showToast("خطأ في الاتصال بالخادم", "error");
+            }
+            
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+
+        async function handleWithdraw() {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            const binancePayId = document.getElementById('binance-pay-id').value.trim();
+            const btn = document.getElementById('withdraw-btn');
+            
+            if (!amount || amount < 0.5) {
+                tg.showAlert(`❌ الحد الأدنى للسحب 0.5 USDT`);
+                return;
+            }
+            
+            if (!binancePayId || binancePayId.length < 5) {
+                tg.showAlert(`❌ يرجى إدخال Binance Pay ID صحيح`);
+                return;
+            }
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/withdraw`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        user_id: userId, 
+                        amount: amount,
+                        binance_pay_id: binancePayId
+                    })
+                });
+                const result = await response.json();
+                
+                tg.showAlert(result.message);
+                showToast(result.message, result.success ? 'success' : 'error');
+                
+                if (result.success) {
+                    document.getElementById('withdraw-amount').value = '';
+                    document.getElementById('binance-pay-id').value = '';
+                    refreshUserData();
+                }
+            } catch (e) {
+                tg.showAlert("خطأ في الاتصال");
+                showToast("خطأ في الاتصال بالخادم", "error");
+            }
+            
+            btn.innerHTML = 'طلب السحب';
+            btn.disabled = false;
         }
 
         async function refreshUserData() {
-            const response = await fetch(`${API_URL}/api/user/${userId}`);
-            const data = await response.json();
-            updateUI(data);
+            try {
+                const response = await fetch(`${API_URL}/api/user/${userId}`);
+                const data = await response.json();
+                updateUI(data);
+            } catch (error) {
+                console.error('Refresh error:', error);
+            }
         }
 
         function showPage(pageId, btn) {
@@ -263,25 +431,67 @@
             document.getElementById(pageId).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             btn.classList.add('active');
+            
+            // تحديث البيانات عند التبديل بين الصفحات
+            refreshUserData();
         }
 
         function copyRef() {
             const link = document.getElementById('ref-link');
             link.select();
             navigator.clipboard.writeText(link.value);
-            tg.showAlert("📋 تم النسخ!");
+            tg.showAlert("📋 تم نسخ رابط الإحالة!");
+            showToast("📋 تم نسخ الرابط", "success");
         }
 
         function renderWithdrawalsHistory(withdrawals) {
             const container = document.getElementById('withdrawals-history');
-            if (!withdrawals.length) return container.innerHTML = '<p class="text-center text-slate-500 py-4">لا توجد سحوبات</p>';
-            container.innerHTML = withdrawals.map(w => `<div class="bg-slate-800/50 p-3 rounded-lg flex justify-between items-center text-xs">
-                <div><p class="font-bold text-yellow-400">${w.amount} USDT</p><p class="text-slate-500">${new Date(w.created_at).toLocaleDateString()}</p></div>
-                <span class="text-indigo-400">${w.status}</span></div>`).join('');
+            if (!withdrawals || withdrawals.length === 0) {
+                container.innerHTML = '<p class="text-center text-slate-500 py-4">لا توجد سحوبات سابقة</p>';
+                return;
+            }
+            
+            container.innerHTML = withdrawals.map(w => {
+                let statusClass = '';
+                let statusText = '';
+                
+                switch(w.status) {
+                    case 'pending':
+                        statusClass = 'text-yellow-400';
+                        statusText = 'قيد الانتظار';
+                        break;
+                    case 'completed':
+                        statusClass = 'text-green-400';
+                        statusText = 'مكتمل';
+                        break;
+                    case 'rejected':
+                        statusClass = 'text-red-400';
+                        statusText = 'مرفوض';
+                        break;
+                }
+                
+                return `
+                    <div class="bg-slate-800/50 p-3 rounded-lg flex justify-between items-center text-xs">
+                        <div>
+                            <p class="font-bold text-yellow-400">${w.amount} USDT</p>
+                            <p class="text-slate-500">${new Date(w.created_at).toLocaleDateString('ar-SA')}</p>
+                        </div>
+                        <span class="${statusClass}">${statusText}</span>
+                    </div>
+                `;
+            }).join('');
         }
 
+        // بدء التطبيق
         init();
-        setInterval(refreshUserData, 30000);
+        
+        // تحديث البيانات كل 30 ثانية
+        refreshInterval = setInterval(refreshUserData, 30000);
+        
+        // تنظيف عند إغلاق الصفحة
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) clearInterval(refreshInterval);
+        });
     </script>
 </body>
 </html>
