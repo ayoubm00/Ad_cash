@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
-        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #fff; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #fff; }
         .nav-item.active { color: #6366f1; border-top: 3px solid #6366f1; }
         .nav-item { color: #64748b; }
         .page-section { display: none; }
@@ -61,39 +61,44 @@
         <div class="flex items-center gap-3">
             <div class="bg-yellow-500 p-2 rounded-lg"><i class="fas fa-wallet text-white"></i></div>
             <div>
-                <p class="text-[10px] text-slate-400">رصيدك</p>
+                <p class="text-[10px] text-slate-400">Your balance</p>
                 <p class="font-bold text-xl text-yellow-400" id="balance">0.0000</p>
             </div>
         </div>
-        <div class="text-indigo-500 font-black text-xl italic">AD CASH</div>
+        <!-- Removed italic style: font-black and text-xl remain, italic removed -->
+        <div class="text-indigo-500 font-black text-xl">AD CASH</div>
     </header>
 
     <main class="flex-1 overflow-y-auto p-4 pb-24">
         
+        <!-- Home page (Tasks) -->
         <div id="home-page" class="page-section active">
             
+            <!-- special channel task -->
             <div id="special-task-container" class="bg-gradient-to-r from-slate-800 to-indigo-900 p-5 rounded-2xl mb-6 shadow-xl border border-indigo-500/50">
                 <h3 class="text-lg font-bold text-white mb-3 flex items-center">
-                    <i class="fas fa-tasks ml-2 text-yellow-400"></i> مهمة القنوات 
+                    <i class="fas fa-tasks ml-2 text-yellow-400"></i> Channel Task 
                 </h3>
-                <p class="text-sm text-indigo-200 mb-4">اشترك في القنوات واضغط على تأكيد للحصول على 0.01$ فوراً!</p>
+                <p class="text-sm text-indigo-200 mb-4">Subscribe to the channels and press confirm to get 0.01$ instantly!</p>
                 <div class="grid grid-cols-2 gap-3 mb-4">
-                    <a href="https://t.me/AD0_News" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition">القناة الأولى</a>
-                    <a href="https://t.me/AD_Withdraw" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition">القناة الثانية</a>
+                    <a href="https://t.me/AD0_News" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition">Channel 1</a>
+                    <a href="https://t.me/AD_Withdraw" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition">Channel 2</a>
                 </div>
                 <button id="verify-btn" onclick="verifySubscription()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-green-900/20">
-                    تأكيد الاشتراك واستلام المكافأة
+                    Confirm subscription & get reward
                 </button>
             </div>
 
+            <!-- info banner -->
             <div class="mb-4 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 p-4 rounded-lg border border-indigo-500/30">
-                <p class="text-sm">💰 عند إكمال جميع المهام تحصل على <span class="font-bold text-yellow-400">0.01 USDT</span></p>
-                <p class="text-xs text-slate-400 mt-2">⏰ المهام تتجدد كل 24 ساعة</p>
+                <p class="text-sm">💰 Completing all tasks gives you <span class="font-bold text-yellow-400">0.01 USDT</span></p>
+                <p class="text-xs text-slate-400 mt-2">⏰ Tasks reset every 24 hours</p>
             </div>
 
+            <!-- progress section -->
             <div id="progress-section" class="mb-4 bg-slate-800 p-4 rounded-lg border border-slate-700 hidden">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm">تقدم المهام</span>
+                    <span class="text-sm">Tasks progress</span>
                     <span class="text-sm text-yellow-400" id="tasks-progress">0/10</span>
                 </div>
                 <div class="w-full bg-slate-700 rounded-full h-2.5">
@@ -102,31 +107,35 @@
                 <p class="text-xs text-slate-400 mt-2" id="progress-message"></p>
             </div>
             
+            <!-- loading skeletons -->
             <div id="tasks-loading" class="space-y-3">
                 <div class="skeleton"></div>
                 <div class="skeleton"></div>
                 <div class="skeleton"></div>
             </div>
             
+            <!-- tasks container -->
             <div id="tasks-container" class="space-y-3 hidden"></div>
             
+            <!-- error message -->
             <div id="tasks-error" class="hidden text-center py-8">
                 <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-3"></i>
-                <p class="text-red-400">فشل تحميل المهام</p>
-                <button onclick="init()" class="mt-3 bg-indigo-600 px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 transition">إعادة المحاولة</button>
+                <p class="text-red-400">Failed to load tasks</p>
+                <button onclick="init()" class="mt-3 bg-indigo-600 px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 transition">Try again</button>
             </div>
         </div>
 
+        <!-- Referral page -->
         <div id="refer-page" class="page-section">
             <div class="text-center py-4">
                 <i class="fas fa-gift text-6xl text-indigo-500 mb-4"></i>
-                <h2 class="text-2xl font-bold">نظام الإحالة</h2>
+                <h2 class="text-2xl font-bold">Referral System</h2>
                 <div class="mt-2 bg-slate-700/50 p-3 rounded-lg text-sm text-indigo-200">
                     <i class="fas fa-info-circle ml-1"></i>
-                    احصل على 0.01$ عن كل شخص يكمل 10 مهام
+                    Get 0.01$ for each friend who completes 10 tasks
                 </div>
                 <div class="mt-6 bg-slate-800 p-4 rounded-xl border border-slate-700">
-                    <p class="text-xs text-slate-400 mb-2 text-right">رابط الدعوة الخاص بك</p>
+                    <p class="text-xs text-slate-400 mb-2 text-left">Your personal invite link</p>
                     <div class="flex items-center gap-2">
                         <input type="text" id="ref-link" class="w-full bg-slate-700 text-indigo-300 text-sm p-3 rounded-lg border border-slate-600" readonly>
                         <button onclick="copyRef()" class="bg-indigo-600 p-3 rounded-lg hover:bg-indigo-700 transition"><i class="fas fa-copy"></i></button>
@@ -134,54 +143,57 @@
                 </div>
                 <div class="mt-6 grid grid-cols-2 gap-4">
                     <div class="bg-slate-800 p-4 rounded-xl text-center">
-                        <p class="text-[10px] text-slate-400">عدد الإحالات</p>
+                        <p class="text-[10px] text-slate-400">Total referrals</p>
                         <p id="total-refs" class="text-xl font-bold">0</p>
                     </div>
                     <div class="bg-slate-800 p-4 rounded-xl text-center">
-                        <p class="text-[10px] text-slate-400">أرباح الإحالة</p>
+                        <p class="text-[10px] text-slate-400">Referral earnings</p>
                         <p id="ref-earnings" class="text-xl font-bold text-green-400">0.0000</p>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Wallet / Withdraw page -->
         <div id="wallet-page" class="page-section">
             <div class="bg-gradient-to-br from-indigo-900 to-slate-800 p-6 rounded-2xl mb-6 shadow-2xl border border-indigo-500/20">
-                <p class="text-indigo-300 text-sm">الرصيد القابل للسحب</p>
+                <p class="text-indigo-300 text-sm">Withdrawable balance</p>
                 <h1 class="text-4xl font-black text-white mt-2" id="withdraw-balance-display">0.0000 <span class="text-sm text-yellow-400 font-normal">USDT</span></h1>
             </div>
             <div class="space-y-4">
                 <div>
-                    <input type="number" id="withdraw-amount" step="0.01" min="0.5" placeholder="المبلغ (الأدنى 0.5)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
-                    <p class="text-xs text-slate-500 mt-1">الحد الأدنى: 0.5 USDT</p>
+                    <input type="number" id="withdraw-amount" step="0.01" min="0.5" placeholder="Amount (min 0.5)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
+                    <p class="text-xs text-slate-500 mt-1">Minimum: 0.5 USDT</p>
                 </div>
                 <input type="text" id="binance-pay-id" placeholder="Binance Pay ID" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
                 <button onclick="handleWithdraw()" id="withdraw-btn" class="w-full bg-indigo-600 py-4 rounded-xl font-bold text-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                    طلب السحب
+                    Request Withdrawal
                 </button>
             </div>
             <div class="mt-8">
-                <h3 class="font-bold mb-4 flex items-center gap-2"><i class="fas fa-history text-indigo-400"></i> سجل السحوبات</h3>
+                <h3 class="font-bold mb-4 flex items-center gap-2"><i class="fas fa-history text-indigo-400"></i> Withdrawal History</h3>
                 <div id="withdrawals-history" class="space-y-2"></div>
             </div>
         </div>
     </main>
 
+    <!-- Bottom navigation -->
     <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around items-center h-20 px-4">
         <button onclick="showPage('home-page', this)" class="nav-item active flex flex-col items-center gap-1 transition-all">
             <i class="fas fa-th-large text-xl"></i>
-            <span class="text-[10px]">المهام</span>
+            <span class="text-[10px]">Tasks</span>
         </button>
         <button onclick="showPage('refer-page', this)" class="nav-item flex flex-col items-center gap-1 transition-all">
             <i class="fas fa-user-plus text-xl"></i>
-            <span class="text-[10px]">الإحالة</span>
+            <span class="text-[10px]">Referrals</span>
         </button>
         <button onclick="showPage('wallet-page', this)" class="nav-item flex flex-col items-center gap-1 transition-all">
             <i class="fas fa-wallet text-xl"></i>
-            <span class="text-[10px]">السحب</span>
+            <span class="text-[10px]">Withdraw</span>
         </button>
     </nav>
 
+    <!-- Toast notification -->
     <div id="toast" class="toast hidden"></div>
 
     <script>
@@ -198,7 +210,7 @@
         let currentAdProgress = { taskId: null, count: 0 };
         let refreshInterval;
 
-        // إظهار رسالة منبثقة
+        // Show toast message
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             toast.innerHTML = message;
@@ -253,8 +265,8 @@
                 document.getElementById('tasks-progress').innerText = `${completedTasks}/10`;
                 document.getElementById('progress-bar').style.width = `${(completedTasks / 10) * 100}%`;
                 document.getElementById('progress-message').innerText = completedTasks === 10 ? 
-                    'تهانينا! أكملت المهام' : 
-                    `متبقي ${10-completedTasks} مهام للمكافأة`;
+                    'Congratulations! You completed all tasks' : 
+                    `${10-completedTasks} tasks left for reward`;
             }
             
             renderTasks();
@@ -274,7 +286,7 @@
                 let timeLeft = '';
                 if (cooldownUntil && cooldownUntil > now) {
                     const hoursLeft = Math.ceil((cooldownUntil - now) / (1000 * 60 * 60));
-                    timeLeft = `<span class="text-xs text-slate-500">(متبقي ${hoursLeft} ساعة)</span>`;
+                    timeLeft = `<span class="text-xs text-slate-500">(${hoursLeft} hours left)</span>`;
                 }
                 
                 const card = document.createElement('div');
@@ -283,24 +295,24 @@
                 let actionBtn = '';
                 if (isCompleted) {
                     actionBtn = `
-                        <div class="text-left">
+                        <div class="text-right">
                             <span class="text-green-400 text-sm flex items-center">
-                                <i class="fas fa-check-circle ml-1"></i>مكتملة
+                                <i class="fas fa-check-circle ml-1"></i>Completed
                             </span>
                             ${timeLeft}
                         </div>
                     `;
                 } else {
                     const isProcessing = currentAdProgress.taskId === i;
-                    let btnLabel = isProcessing ? (currentAdProgress.count >= 3 ? 'تأكيد ✅' : `إعلان ${currentAdProgress.count}/3`) : 'شاهد إعلان';
+                    let btnLabel = isProcessing ? (currentAdProgress.count >= 3 ? 'Confirm ✅' : `Ad ${currentAdProgress.count}/3`) : 'Watch Ad';
                     let btnClass = isProcessing && currentAdProgress.count >= 3 ? 'bg-yellow-500 text-black pulse' : 'bg-indigo-600';
                     actionBtn = `<button onclick="handleTaskClick(${i})" class="${btnClass} px-4 py-2 rounded-lg text-xs font-bold transition-all hover:opacity-90">${btnLabel}</button>`;
                 }
 
                 card.innerHTML = `
                     <div>
-                        <p class="text-sm font-bold">المهمة ${i}</p>
-                        <p class="text-[10px] text-slate-400">مشاهدة 3 إعلانات</p>
+                        <p class="text-sm font-bold">Task ${i}</p>
+                        <p class="text-[10px] text-slate-400">Watch 3 ads</p>
                     </div>
                     ${actionBtn}
                 `;
@@ -319,11 +331,11 @@
                     const data = await response.json();
                     if (data.success) {
                         currentAdProgress = { taskId: null, count: 0 };
-                        showToast("✅ تم إكمال المهمة بنجاح", "success");
+                        showToast("✅ Task completed successfully", "success");
                         refreshUserData();
                     }
                 } catch (error) {
-                    tg.showAlert("❌ حدث خطأ، حاول مرة أخرى");
+                    tg.showAlert("❌ Error occurred, try again");
                 }
                 return;
             }
@@ -346,7 +358,7 @@
         async function verifySubscription() {
             const btn = document.getElementById('verify-btn');
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
             btn.disabled = true;
             
             try {
@@ -360,7 +372,7 @@
                 showToast(result.message, result.success ? 'success' : 'error');
                 if (result.success) refreshUserData();
             } catch (e) { 
-                showToast("خطأ في الاتصال بالخادم", "error");
+                showToast("Server connection error", "error");
             }
             
             btn.innerHTML = originalText;
@@ -373,16 +385,16 @@
             const btn = document.getElementById('withdraw-btn');
             
             if (!amount || amount < 0.5) {
-                 showToast("❌ الحد الأدنى للسحب 0.5 USDT");
+                 showToast("❌ Minimum withdrawal is 0.5 USDT");
                 return;
             }
             
             if (!binancePayId || binancePayId.length < 5) {
-                 showToast(`❌ يرجى إدخال Binance Pay ID صحيح`);
+                 showToast(`❌ Please enter a valid Binance Pay ID`);
                 return;
             }
             
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
             btn.disabled = true;
             
             try {
@@ -406,10 +418,10 @@
                     refreshUserData();
                 }
             } catch (e) {
-                showToast("خطأ في الاتصال بالخادم", "error");
+                showToast("Server connection error", "error");
             }
             
-            btn.innerHTML = 'طلب السحب';
+            btn.innerHTML = 'Request Withdrawal';
             btn.disabled = false;
         }
 
@@ -429,7 +441,7 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             btn.classList.add('active');
             
-            // تحديث البيانات عند التبديل بين الصفحات
+            // Refresh data when switching pages
             refreshUserData();
         }
 
@@ -437,13 +449,13 @@
             const link = document.getElementById('ref-link');
             link.select();
             navigator.clipboard.writeText(link.value);
-            showToast("📋 تم نسخ الرابط", "success");
+            showToast("📋 Link copied", "success");
         }
 
         function renderWithdrawalsHistory(withdrawals) {
             const container = document.getElementById('withdrawals-history');
             if (!withdrawals || withdrawals.length === 0) {
-                container.innerHTML = '<p class="text-center text-slate-500 py-4">لا توجد سحوبات سابقة</p>';
+                container.innerHTML = '<p class="text-center text-slate-500 py-4">No withdrawals yet</p>';
                 return;
             }
             
@@ -454,15 +466,15 @@
                 switch(w.status) {
                     case 'pending':
                         statusClass = 'text-yellow-400';
-                        statusText = 'قيد الانتظار';
+                        statusText = 'Pending';
                         break;
                     case 'completed':
                         statusClass = 'text-green-400';
-                        statusText = 'مكتمل';
+                        statusText = 'Completed';
                         break;
                     case 'rejected':
                         statusClass = 'text-red-400';
-                        statusText = 'مرفوض';
+                        statusText = 'Rejected';
                         break;
                 }
                 
@@ -470,7 +482,7 @@
                     <div class="bg-slate-800/50 p-3 rounded-lg flex justify-between items-center text-xs">
                         <div>
                             <p class="font-bold text-yellow-400">${w.amount} USDT</p>
-                            <p class="text-slate-500">${new Date(w.created_at).toLocaleDateString('ar-SA')}</p>
+                            <p class="text-slate-500">${new Date(w.created_at).toLocaleDateString('en-GB')}</p>
                         </div>
                         <span class="${statusClass}">${statusText}</span>
                     </div>
@@ -478,20 +490,16 @@
             }).join('');
         }
 
-        // بدء التطبيق
+        // Start app
         init();
         
-        // تحديث البيانات كل 30 ثانية
+        // Refresh every 30 seconds
         refreshInterval = setInterval(refreshUserData, 30000);
         
-        // تنظيف عند إغلاق الصفحة
+        // Cleanup on close
         window.addEventListener('beforeunload', () => {
             if (refreshInterval) clearInterval(refreshInterval);
         });
     </script>
 </body>
 </html>
-
-
-
-
