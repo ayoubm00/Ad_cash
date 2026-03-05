@@ -65,7 +65,6 @@
                 <p class="font-bold text-xl text-yellow-400" id="balance">0.00</p>
             </div>
         </div>
-        <!-- Removed italic style: font-black and text-xl remain, italic removed -->
         <div class="text-indigo-500 font-black text-xl">AD CASH</div>
     </header>
 
@@ -158,7 +157,7 @@
         <div id="wallet-page" class="page-section">
             <div class="bg-gradient-to-br from-indigo-900 to-slate-800 p-6 rounded-2xl mb-6 shadow-2xl border border-indigo-500/20">
                 <p class="text-indigo-300 text-sm">Withdrawable balance</p>
-                <h1 class="text-4xl font-black text-white mt-2" id="withdraw-balance-display">0.0000 <span class="text-sm text-yellow-400 font-normal">USDT</span></h1>
+                <h1 class="text-4xl font-black text-white mt-2" id="withdraw-balance-display">0.00 <span class="text-sm text-yellow-400 font-normal">USDT</span></h1>
             </div>
             <div class="space-y-4">
                 <div>
@@ -247,10 +246,10 @@
         }
 
         function updateUI(data) {
-            document.getElementById('balance').innerText = data.balance.toFixed(4);
-            document.getElementById('withdraw-balance-display').innerText = data.balance.toFixed(4);
+            document.getElementById('balance').innerText = data.balance.toFixed(2);
+            document.getElementById('withdraw-balance-display').innerText = data.balance.toFixed(2);
             document.getElementById('total-refs').innerText = data.referrals_count || 0;
-            document.getElementById('ref-earnings').innerText = (data.referrals_earnings || 0).toFixed(4);
+            document.getElementById('ref-earnings').innerText = (data.referrals_earnings || 0).toFixed(2);
             document.getElementById('ref-link').value = `https://t.me/${botUsername}?start=${userId}`;
             
             if (data.joined_channels) {
@@ -481,7 +480,7 @@
                 return `
                     <div class="bg-slate-800/50 p-3 rounded-lg flex justify-between items-center text-xs">
                         <div>
-                            <p class="font-bold text-yellow-400">${w.amount} USDT</p>
+                            <p class="font-bold text-yellow-400">${Number(w.amount).toFixed(2)} USDT</p>
                             <p class="text-slate-500">${new Date(w.created_at).toLocaleDateString('en-GB')}</p>
                         </div>
                         <span class="${statusClass}">${statusText}</span>
@@ -503,5 +502,3 @@
     </script>
 </body>
 </html>
-
-
