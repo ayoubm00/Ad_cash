@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADCash - v2.0 (Secure)</title>
+    <title>ADCash - v1.0</title>
     <script src='//libtl.com/sdk.js' data-zone='10673309' data-sdk='show_10673309'></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,6 +15,8 @@
         .nav-item { color: #64748b; }
         .page-section { display: none; }
         .page-section.active { display: block; }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
         .progress-bar { transition: width 0.5s ease; }
         .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 8px; height: 60px; }
         @keyframes loading { 0% {background-position: 200% 0;} 100% {background-position: -200% 0;} }
@@ -46,25 +48,13 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-        .task-completed {
-            background: linear-gradient(135deg, #0a3622, #14532d);
-            border-color: #22c55e;
-        }
-        .security-badge {
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid #6366f1;
-            border-radius: 20px;
-            padding: 4px 12px;
-            font-size: 10px;
-            color: #a5b4fc;
-        }
+.task-completed {
+    background: linear-gradient(135deg, #0a3622, #14532d);
+    border-color: #22c55e;
+}
     </style>
 </head>
 <body class="h-screen flex flex-col">
-
-    <!-- Anti-debug header -->
-    <div style="display: none;">SECURITY v2.0 - Protected</div>
 
     <header class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center shadow-xl">
         <div class="flex items-center gap-3">
@@ -74,10 +64,7 @@
                 <p class="font-bold text-xl text-yellow-400" id="balance">0.00</p>
             </div>
         </div>
-        <div class="flex items-center gap-2">
-        
-            <div class="text-indigo-500 font-black text-xl">AD CASH</div>
-        </div>
+        <div class="text-indigo-500 font-black text-xl">AD CASH</div>
     </header>
 
     <main class="flex-1 overflow-y-auto p-4 pb-24">
@@ -92,15 +79,12 @@
                 </h3>
                 <p class="text-sm text-indigo-200 mb-4">Subscribe to the channels and press confirm to get 0.01$ instantly!</p>
                 <div class="grid grid-cols-2 gap-3 mb-4">
-                    <a href="https://t.me/AD0_News" target="_blank" rel="noopener noreferrer" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition">Channel 1</a>
-                    <a href="https://t.me/AD_Withdraw" target="_blank" rel="noopener noreferrer" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition">Channel 2</a>
+                    <a href="https://t.me/AD0_News" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition">Channel 1</a>
+                    <a href="https://t.me/AD_Withdraw" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition">Channel 2</a>
                 </div>
                 <button id="verify-btn" onclick="verifySubscription()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-green-900/20">
                     Confirm subscription & get reward
                 </button>
-                <p class="text-xs text-slate-400 mt-2 text-center">
-                    <i class="fas fa-clock ml-1"></i> One-time reward only
-                </p>
             </div>
 
             <!-- info banner -->
@@ -174,13 +158,6 @@
                 <p class="text-indigo-300 text-sm">Withdrawable balance</p>
                 <h1 class="text-4xl font-black text-white mt-2" id="withdraw-balance-display">0.00 <span class="text-sm text-yellow-400 font-normal">USDT</span></h1>
             </div>
-            
-            <!-- Security notice -->
-            <div class="mb-4 bg-yellow-500/10 border border-yellow-500/30 p-3 rounded-lg text-xs text-yellow-200">
-                <i class="fas fa-shield-alt ml-1 text-yellow-400"></i>
-                Withdrawals are verified manually. Anti-fraud checks enabled.
-            </div>
-            
             <div class="space-y-4">
                 <div>
                     <input type="number" id="withdraw-amount" step="0.01" min="0.3" placeholder="Amount (min 0.3)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
@@ -218,28 +195,6 @@
     <div id="toast" class="toast hidden"></div>
 
     <script>
-        (function() {
-            // Anti-debug and anti-cheat measures
-            let debuggerDetected = false;
-            
-            // Detect DevTools
-            const element = new Image();
-            Object.defineProperty(element, 'id', {
-                get: function() {
-                    debuggerDetected = true;
-                    alert('⚠️ Developer tools detected! Please close them to continue.');
-                }
-            });
-            console.log(element);
-            
-            // Detect DevTools via size
-            setInterval(function() {
-                if (window.outerWidth - window.innerWidth > 200 || window.outerHeight - window.innerHeight > 200) {
-                    alert('⚠️ Developer tools detected! Please close them to continue.');
-                }
-            }, 2000);
-        })();
-
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
@@ -250,49 +205,8 @@
         const botUsername = 'ADCash_dzbot'; 
 
         let userTasksStatus = [];
-        let currentAdProgress = { taskId: null, count: 0, adSessionId: null, timestamp: Date.now() };
+        let currentAdProgress = { taskId: null, count: 0 };
         let refreshInterval;
-        let fraudScore = 0;
-        let sessionToken = generateSessionToken();
-        
-        // 🔹 Prevent concurrent tasks
-        let activeTasks = new Set();
-        let lastTaskReset = Date.now();
-        let serverTimeOffset = 0;
-        
-        // Generate unique session token
-        function generateSessionToken() {
-            return Date.now() + '-' + Math.random().toString(36).substring(2, 15) + '-' + userId;
-        }
-        
-        // 🔹 Detect manual task reset
-        function detectManualReset() {
-            const now = Date.now();
-            const timeSinceLastReset = now - lastTaskReset;
-            
-            if (timeSinceLastReset < 23 * 60 * 60 * 1000) {
-                fraudScore += 20;
-                showToast('⚠️ Cannot reset tasks manually', 'error');
-                return true;
-            }
-            
-            return false;
-        }
-
-        // 🔹 Check for concurrent tasks
-        function checkConcurrentTasks(taskId) {
-            if (activeTasks.has(taskId)) {
-                showToast('⚠️ This task is already in progress', 'error');
-                return false;
-            }
-            
-            if (activeTasks.size >= 2) {
-                showToast('⚠️ Cannot run more than 2 tasks simultaneously', 'error');
-                return false;
-            }
-            
-            return true;
-        }
 
         // Show toast message
         function showToast(message, type = 'success') {
@@ -317,28 +231,9 @@
             document.getElementById('tasks-loading').classList.remove('hidden');
             document.getElementById('tasks-container').classList.add('hidden');
             try {
-                const url = `${API_URL}/api/user/${userId}${startParam ? `?ref=${startParam}` : ''}&token=${sessionToken}&t=${Date.now()}`;
-                const response = await fetch(url, {
-                    headers: {
-                        'X-Session-Token': sessionToken,
-                        'X-Client-Time': Date.now().toString()
-                    }
-                });
+                const url = `${API_URL}/api/user/${userId}${startParam ? `?ref=${startParam}` : ''}`;
+                const response = await fetch(url);
                 const data = await response.json();
-                
-                if (data.fraud_detected) {
-                    alert('⚠️ Suspicious activity detected. Account frozen.');
-                    return;
-                }
-                
-                if (data.last_reset) {
-                    lastTaskReset = new Date(data.last_reset).getTime();
-                }
-                
-                if (data.server_time) {
-                    serverTimeOffset = data.server_time - Date.now();
-                }
-                
                 updateUI(data);
                 document.getElementById('tasks-loading').classList.add('hidden');
                 document.getElementById('tasks-container').classList.remove('hidden');
@@ -367,20 +262,13 @@
                 document.getElementById('progress-section').classList.remove('hidden');
                 document.getElementById('tasks-progress').innerText = `${completedTasks}/10`;
                 document.getElementById('progress-bar').style.width = `${(completedTasks / 10) * 100}%`;
-                
-                if (completedTasks === 10) {
-                    document.getElementById('progress-message').innerText = 'Congratulations! You completed all tasks';
-                } else {
-                    document.getElementById('progress-message').innerText = `${10-completedTasks} tasks left for reward`;
-                }
+                document.getElementById('progress-message').innerText = completedTasks === 10 ? 
+                    'Congratulations! You completed all tasks' : 
+                    `${10-completedTasks} tasks left for reward`;
             }
             
             renderTasks();
             renderWithdrawalsHistory(data.withdrawals || []);
-            
-            if (data.fraud_score > 30) {
-                showToast('⚠️ Unusual activity detected', 'error');
-            }
         }
 
         function renderTasks() {
@@ -391,15 +279,12 @@
                 const task = userTasksStatus.find(t => t.task_id === i) || { completed: false };
                 const isCompleted = task.completed;
                 const cooldownUntil = task.cooldown_until ? new Date(task.cooldown_until) : null;
-                const now = new Date(Date.now() + serverTimeOffset);
+                const now = new Date();
                 
                 let timeLeft = '';
-                
                 if (cooldownUntil && cooldownUntil > now) {
-                    const hoursLeft = Math.floor((cooldownUntil - now) / (1000 * 60 * 60));
-                    const minutesLeft = Math.floor(((cooldownUntil - now) % (1000 * 60 * 60)) / (1000 * 60));
-                    
-                    timeLeft = `<span class="text-xs text-slate-500">(${hoursLeft}h ${minutesLeft}m left)</span>`;
+                    const hoursLeft = Math.ceil((cooldownUntil - now) / (1000 * 60 * 60));
+                    timeLeft = `<span class="text-xs text-slate-500">(${hoursLeft} hours left)</span>`;
                 }
                 
                 const card = document.createElement('div');
@@ -417,18 +302,9 @@
                     `;
                 } else {
                     const isProcessing = currentAdProgress.taskId === i;
-                    const isActive = activeTasks.has(i);
-                    const isDisabled = isActive || (activeTasks.size >= 2 && !isProcessing);
-                    
                     let btnLabel = isProcessing ? (currentAdProgress.count >= 3 ? 'Confirm ✅' : `Ad ${currentAdProgress.count}/3`) : 'Watch Ad';
-                    let btnClass = isProcessing && currentAdProgress.count >= 3 ? 'bg-yellow-500 text-black' : 'bg-indigo-600';
-                    
-                    if (isDisabled && !isProcessing) {
-                        btnClass = 'bg-slate-600 cursor-not-allowed';
-                        btnLabel = 'In progress';
-                    }
-                    
-                    actionBtn = `<button onclick="handleTaskClick(${i})" ${isDisabled && !isProcessing ? 'disabled' : ''} class="${btnClass} px-4 py-2 rounded-lg text-xs font-bold transition-all hover:opacity-90 ${isDisabled ? 'opacity-50' : ''}">${btnLabel}</button>`;
+                    let btnClass = isProcessing && currentAdProgress.count >= 3 ? 'bg-yellow-500 text-black pulse' : 'bg-indigo-600';
+                    actionBtn = `<button onclick="handleTaskClick(${i})" class="${btnClass} px-4 py-2 rounded-lg text-xs font-bold transition-all hover:opacity-90">${btnLabel}</button>`;
                 }
 
                 card.innerHTML = `
@@ -443,106 +319,37 @@
         }
 
         async function handleTaskClick(taskId) {
-            // 🔹 Check for manual reset
-            if (detectManualReset()) {
-                return;
-            }
-            
-            // 🔹 Check for concurrent tasks
-            if (!checkConcurrentTasks(taskId)) {
-                return;
-            }
-            
-            const task = userTasksStatus.find(t => t.task_id === taskId);
-            if (task && task.completed) {
-                showToast('✅ This task is already completed', 'error');
-                return;
-            }
-            
             if (currentAdProgress.taskId === taskId && currentAdProgress.count >= 3) {
                 try {
-                    const timeSpent = Date.now() - currentAdProgress.timestamp;
-                    if (timeSpent < 10000) {
-                        showToast('⏱ Please wait between ads', 'error');
-                        return;
-                    }
-                    
                     const response = await fetch(`${API_URL}/api/complete-task`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Session-Token': sessionToken
-                        },
-                        body: JSON.stringify({ 
-                            user_id: userId, 
-                            task_id: taskId,
-                            session_id: currentAdProgress.adSessionId,
-                            time_spent: timeSpent,
-                            client_time: Date.now()
-                        })
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ user_id: userId, task_id: taskId })
                     });
                     const data = await response.json();
-                    
                     if (data.success) {
-                        activeTasks.delete(taskId);
-                        currentAdProgress = { taskId: null, count: 0, adSessionId: null, timestamp: Date.now() };
+                        currentAdProgress = { taskId: null, count: 0 };
                         showToast("✅ Task completed successfully", "success");
                         refreshUserData();
-                        
-                        if (data.last_reset) {
-                            lastTaskReset = new Date(data.last_reset).getTime();
-                        }
-                    } else {
-                        showToast(data.message || "Completion failed", "error");
-                        activeTasks.delete(taskId);
                     }
                 } catch (error) {
                     tg.showAlert("❌ Error occurred, try again");
-                    activeTasks.delete(taskId);
                 }
                 return;
             }
             
             if (typeof show_10673309 === 'function') {
                 try {
-                    const adSessionId = Date.now() + '-' + Math.random().toString(36).substring(2, 10);
-                    
-                    activeTasks.add(taskId);
-                    
                     await show_10673309();
-                    
                     if (currentAdProgress.taskId !== taskId) {
-                        currentAdProgress = { 
-                            taskId: taskId, 
-                            count: 1, 
-                            adSessionId: adSessionId,
-                            timestamp: Date.now()
-                        };
+                        currentAdProgress = { taskId: taskId, count: 1 };
                     } else {
                         currentAdProgress.count++;
-                        currentAdProgress.timestamp = Date.now();
                     }
-                    
                     renderTasks();
-                    
-                    fetch(`${API_URL}/api/log-ad-view`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            user_id: userId,
-                            task_id: taskId,
-                            session_id: adSessionId,
-                            count: currentAdProgress.count
-                        })
-                    }).catch(e => console.log('Log error:', e));
-                    
                 } catch (error) {
                     console.error('Ad error:', error);
-                    showToast('Failed to load ad', 'error');
-                    activeTasks.delete(taskId);
                 }
-            } else {
-                showToast('Ad service unavailable', 'error');
             }
         }
 
@@ -555,20 +362,12 @@
             try {
                 const response = await fetch(`${API_URL}/api/verify-channels`, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'X-Session-Token': sessionToken
-                    },
-                    body: JSON.stringify({ 
-                        user_id: userId,
-                        verify_time: Date.now()
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
                 });
                 const result = await response.json();
-                
                 tg.showAlert(result.message);
                 showToast(result.message, result.success ? 'success' : 'error');
-                
                 if (result.success) refreshUserData();
             } catch (e) { 
                 showToast("Server connection error", "error");
@@ -584,18 +383,12 @@
             const btn = document.getElementById('withdraw-btn');
             
             if (!amount || amount < 0.3) {
-                showToast("❌ Minimum withdrawal is 0.3 USDT", "error");
+                 showToast("❌ Minimum withdrawal is 0.3 USDT");
                 return;
             }
             
             if (!binancePayId || binancePayId.length < 5) {
-                showToast("❌ Please enter a valid Binance Pay ID", "error");
-                return;
-            }
-            
-            const currentBalance = parseFloat(document.getElementById('balance').innerText);
-            if (amount > currentBalance) {
-                showToast("❌ Insufficient balance", "error");
+                 showToast(`❌ Please enter a valid Binance Pay ID`);
                 return;
             }
             
@@ -605,16 +398,11 @@
             try {
                 const response = await fetch(`${API_URL}/api/withdraw`, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'X-Session-Token': sessionToken
-                    },
-                    body: JSON.stringify({
-                        user_id: userId,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        user_id: userId, 
                         amount: amount,
-                        binance_pay_id: binancePayId,
-                        timestamp: Date.now(),
-                        session: sessionToken
+                        binance_pay_id: binancePayId
                     })
                 });
                 const result = await response.json();
@@ -637,15 +425,9 @@
 
         async function refreshUserData() {
             try {
-                const response = await fetch(`${API_URL}/api/user/${userId}?t=${Date.now()}`, {
-                    headers: { 'X-Session-Token': sessionToken }
-                });
+                const response = await fetch(`${API_URL}/api/user/${userId}`);
                 const data = await response.json();
                 updateUI(data);
-                
-                if (data.last_reset) {
-                    lastTaskReset = new Date(data.last_reset).getTime();
-                }
             } catch (error) {
                 console.error('Refresh error:', error);
             }
@@ -656,6 +438,8 @@
             document.getElementById(pageId).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             btn.classList.add('active');
+            
+            // Refresh data when switching pages
             refreshUserData();
         }
 
@@ -704,23 +488,6 @@
             }).join('');
         }
 
-        // Prevent multiple tabs
-        let tabId = sessionStorage.getItem('tabId');
-        if (!tabId) {
-            tabId = Math.random().toString(36).substring(2);
-            sessionStorage.setItem('tabId', tabId);
-        }
-        
-        const bc = new BroadcastChannel('adcash_channel');
-        bc.postMessage({ type: 'CHECK', tabId: tabId });
-        
-        bc.onmessage = function(e) {
-            if (e.data.type === 'CHECK' && e.data.tabId !== tabId) {
-                alert('⚠️ ADCash is already open in another tab. Please close this one.');
-                window.location.href = 'about:blank';
-            }
-        };
-
         // Start app
         init();
         
@@ -730,8 +497,12 @@
         // Cleanup on close
         window.addEventListener('beforeunload', () => {
             if (refreshInterval) clearInterval(refreshInterval);
-            bc.close();
         });
     </script>
 </body>
 </html>
+
+
+
+
+
