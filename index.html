@@ -10,7 +10,19 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #fff; }
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; 
+            color: #fff; 
+        }
+        
+        body.rtl {
+            font-family: 'Tajawal', sans-serif;
+            direction: rtl;
+        }
+        
         .nav-item.active { color: #6366f1; border-top: 3px solid #6366f1; }
         .nav-item { color: #64748b; }
         .page-section { display: none; }
@@ -48,10 +60,124 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-.task-completed {
-    background: linear-gradient(135deg, #0a3622, #14532d);
-    border-color: #22c55e;
-}
+        }
+        .task-completed {
+            background: linear-gradient(135deg, #0a3622, #14532d);
+            border-color: #22c55e;
+        }
+        
+        /* Language Switch Button Styles - Integrated in Header */
+        .lang-switch-wrapper {
+            position: relative;
+        }
+        
+        .lang-switch-btn {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1.5px solid #334155;
+            border-radius: 30px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .lang-switch-btn:hover {
+            background: #6366f1;
+            border-color: #818cf8;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .lang-switch-btn i {
+            font-size: 14px;
+        }
+        
+        .lang-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: #1e293b;
+            border: 1.5px solid #334155;
+            border-radius: 12px;
+            padding: 6px;
+            min-width: 140px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-5px);
+            transition: all 0.2s ease;
+        }
+        
+        .lang-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .lang-option {
+            padding: 10px 12px;
+            margin: 2px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #cbd5e1;
+            font-weight: 500;
+            font-size: 13px;
+        }
+        
+        .lang-option:hover {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .lang-option.active {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .lang-option i {
+            width: 18px;
+            text-align: center;
+        }
+        
+        body.rtl .lang-dropdown {
+            left: 0;
+            right: auto;
+        }
+        
+        body.rtl .nav-item i,
+        body.rtl .fa-arrow-left,
+        body.rtl .fa-arrow-right {
+            transform: scaleX(-1);
+        }
+        
+        /* RTL specific adjustments */
+        body.rtl .text-left { text-align: right; }
+        body.rtl .text-right { text-align: left; }
+        body.rtl .ml-1 { margin-right: 0.25rem; margin-left: 0; }
+        body.rtl .ml-2 { margin-right: 0.5rem; margin-left: 0; }
+        body.rtl .mr-2 { margin-left: 0.5rem; margin-right: 0; }
+        
+        /* Header responsive adjustments */
+        @media (max-width: 480px) {
+            .lang-switch-btn span {
+                display: none;
+            }
+            .lang-switch-btn {
+                padding: 8px;
+            }
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col">
@@ -60,11 +186,36 @@
         <div class="flex items-center gap-3">
             <div class="bg-yellow-500 p-2 rounded-lg"><i class="fas fa-wallet text-white"></i></div>
             <div>
-                <p class="text-[10px] text-slate-400">Your balance</p>
+                <p class="text-[10px] text-slate-400" data-i18n="your_balance">Your balance</p>
                 <p class="font-bold text-xl text-yellow-400" id="balance">0.00</p>
             </div>
         </div>
-        <div class="text-indigo-500 font-black text-xl">AD CASH</div>
+        
+        <!-- Language Switch Component - Integrated in Header -->
+        <div class="flex items-center gap-3">
+            <div class="text-indigo-500 font-black text-xl">AD CASH</div>
+            
+            <div class="lang-switch-wrapper">
+                <button class="lang-switch-btn" onclick="toggleLangDropdown()" id="langSwitchBtn">
+                    <i class="fas fa-globe"></i>
+                    <span id="currentLangText">EN</span>
+                    <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
+                </button>
+                
+                <div class="lang-dropdown" id="langDropdown">
+                    <div class="lang-option active" onclick="switchLanguage('en')" id="langEn">
+                        <i class="fas fa-language"></i>
+                        <span>English</span>
+                        <i class="fas fa-check" style="margin-left: auto; font-size: 11px; opacity: 0.8;"></i>
+                    </div>
+                    <div class="lang-option" onclick="switchLanguage('ar')" id="langAr">
+                        <i class="fas fa-language"></i>
+                        <span>العربية</span>
+                        <i class="fas fa-check" style="margin-left: auto; font-size: 11px; opacity: 0.8; display: none;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
 
     <main class="flex-1 overflow-y-auto p-4 pb-24">
@@ -75,28 +226,29 @@
             <!-- special channel task -->
             <div id="special-task-container" class="bg-gradient-to-r from-slate-800 to-indigo-900 p-5 rounded-2xl mb-6 shadow-xl border border-indigo-500/50">
                 <h3 class="text-lg font-bold text-white mb-3 flex items-center">
-                    <i class="fas fa-tasks ml-2 text-yellow-400"></i> Channel Task 
+                    <i class="fas fa-tasks ml-2 text-yellow-400"></i> 
+                    <span data-i18n="channel_task">Channel Task</span>
                 </h3>
-                <p class="text-sm text-indigo-200 mb-4">Subscribe to the channels and press confirm to get 0.01$ instantly!</p>
+                <p class="text-sm text-indigo-200 mb-4" data-i18n="subscribe_prompt">Subscribe to the channels and press confirm to get 0.01$ instantly!</p>
                 <div class="grid grid-cols-2 gap-3 mb-4">
-                    <a href="https://t.me/AD0_News" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition">Channel 1</a>
-                    <a href="https://t.me/AD_Withdraw" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition">Channel 2</a>
+                    <a href="https://t.me/AD0_News" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition" data-i18n="channel_1">Channel 1</a>
+                    <a href="https://t.me/AD_Withdraw" target="_blank" class="bg-blue-600 text-center py-2 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-700 transition" data-i18n="channel_2">Channel 2</a>
                 </div>
                 <button id="verify-btn" onclick="verifySubscription()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-green-900/20">
-                    Confirm subscription & get reward
+                    <span data-i18n="confirm_subscribe">Confirm subscription & get reward</span>
                 </button>
             </div>
 
             <!-- info banner -->
             <div class="mb-4 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 p-4 rounded-lg border border-indigo-500/30">
-                <p class="text-sm">Completing all tasks gives you <span class="font-bold text-yellow-400">0.01 USDT</span>💰</p>
-                <p class="text-xs text-slate-400 mt-2">⏰ Tasks reset every 24 hours</p>
+                <p class="text-sm"><span data-i18n="completing_tasks_gives">Completing all tasks gives you</span> <span class="font-bold text-yellow-400">0.01 USDT</span>💰</p>
+                <p class="text-xs text-slate-400 mt-2">⏰ <span data-i18n="tasks_reset">Tasks reset every 24 hours</span></p>
             </div>
 
             <!-- progress section -->
             <div id="progress-section" class="mb-4 bg-slate-800 p-4 rounded-lg border border-slate-700 hidden">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm">Tasks progress</span>
+                    <span class="text-sm" data-i18n="tasks_progress">Tasks progress</span>
                     <span class="text-sm text-yellow-400" id="tasks-progress">0/10</span>
                 </div>
                 <div class="w-full bg-slate-700 rounded-full h-2.5">
@@ -118,8 +270,8 @@
             <!-- error message -->
             <div id="tasks-error" class="hidden text-center py-8">
                 <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-3"></i>
-                <p class="text-red-400">Failed to load tasks</p>
-                <button onclick="init()" class="mt-3 bg-indigo-600 px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 transition">Try again</button>
+                <p class="text-red-400" data-i18n="failed_load_tasks">Failed to load tasks</p>
+                <button onclick="init()" class="mt-3 bg-indigo-600 px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 transition" data-i18n="try_again">Try again</button>
             </div>
         </div>
 
@@ -127,13 +279,13 @@
         <div id="refer-page" class="page-section">
             <div class="text-center py-4">
                 <i class="fas fa-gift text-6xl text-indigo-500 mb-4"></i>
-                <h2 class="text-2xl font-bold">Referral System</h2>
+                <h2 class="text-2xl font-bold" data-i18n="referral_system">Referral System</h2>
                 <div class="mt-2 bg-slate-700/50 p-3 rounded-lg text-sm text-indigo-200">
                     <i class="fas fa-info-circle ml-1"></i>
-                    Get 0.01$ for each friend who completes 10 tasks
+                    <span data-i18n="referral_info">Get 0.01$ for each friend who completes 10 tasks</span>
                 </div>
                 <div class="mt-6 bg-slate-800 p-4 rounded-xl border border-slate-700">
-                    <p class="text-xs text-slate-400 mb-2 text-left">Your personal invite link</p>
+                    <p class="text-xs text-slate-400 mb-2 text-left" data-i18n="invite_link">Your personal invite link</p>
                     <div class="flex items-center gap-2">
                         <input type="text" id="ref-link" class="w-full bg-slate-700 text-indigo-300 text-sm p-3 rounded-lg border border-slate-600" readonly>
                         <button onclick="copyRef()" class="bg-indigo-600 p-3 rounded-lg hover:bg-indigo-700 transition"><i class="fas fa-copy"></i></button>
@@ -141,11 +293,11 @@
                 </div>
                 <div class="mt-6 grid grid-cols-2 gap-4">
                     <div class="bg-slate-800 p-4 rounded-xl text-center">
-                        <p class="text-[10px] text-slate-400">Total referrals</p>
+                        <p class="text-[10px] text-slate-400" data-i18n="total_referrals">Total referrals</p>
                         <p id="total-refs" class="text-xl font-bold">0</p>
                     </div>
                     <div class="bg-slate-800 p-4 rounded-xl text-center">
-                        <p class="text-[10px] text-slate-400">Referral earnings</p>
+                        <p class="text-[10px] text-slate-400" data-i18n="referral_earnings">Referral earnings</p>
                         <p id="ref-earnings" class="text-xl font-bold text-green-400">0.00</p>
                     </div>
                 </div>
@@ -155,21 +307,21 @@
         <!-- Wallet / Withdraw page -->
         <div id="wallet-page" class="page-section">
             <div class="bg-gradient-to-br from-indigo-900 to-slate-800 p-6 rounded-2xl mb-6 shadow-2xl border border-indigo-500/20">
-                <p class="text-indigo-300 text-sm">Withdrawable balance</p>
+                <p class="text-indigo-300 text-sm" data-i18n="withdrawable_balance">Withdrawable balance</p>
                 <h1 class="text-4xl font-black text-white mt-2" id="withdraw-balance-display">0.00 <span class="text-sm text-yellow-400 font-normal">USDT</span></h1>
             </div>
             <div class="space-y-4">
                 <div>
-                    <input type="number" id="withdraw-amount" step="0.01" min="0.3" placeholder="Amount (min 0.3)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
-                    <p class="text-xs text-slate-500 mt-1">Minimum: 0.3 USDT</p>
+                    <input type="number" id="withdraw-amount" step="0.01" min="0.3" placeholder="Amount (min 0.3)" data-i18n-placeholder="amount_placeholder" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
+                    <p class="text-xs text-slate-500 mt-1"><span data-i18n="minimum">Minimum</span>: 0.3 USDT</p>
                 </div>
                 <input type="text" id="binance-pay-id" placeholder="Binance Pay ID" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 outline-none focus:border-indigo-500 transition">
                 <button onclick="handleWithdraw()" id="withdraw-btn" class="w-full bg-indigo-600 py-4 rounded-xl font-bold text-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                    Request Withdrawal
+                    <span data-i18n="request_withdrawal">Request Withdrawal</span>
                 </button>
             </div>
             <div class="mt-8">
-                <h3 class="font-bold mb-4 flex items-center gap-2"><i class="fas fa-history text-indigo-400"></i> Withdrawal History</h3>
+                <h3 class="font-bold mb-4 flex items-center gap-2"><i class="fas fa-history text-indigo-400"></i> <span data-i18n="withdrawal_history">Withdrawal History</span></h3>
                 <div id="withdrawals-history" class="space-y-2"></div>
             </div>
         </div>
@@ -179,15 +331,15 @@
     <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around items-center h-20 px-4">
         <button onclick="showPage('home-page', this)" class="nav-item active flex flex-col items-center gap-1 transition-all">
             <i class="fas fa-th-large text-xl"></i>
-            <span class="text-[10px]">Tasks</span>
+            <span class="text-[10px]" data-i18n="tasks">Tasks</span>
         </button>
         <button onclick="showPage('refer-page', this)" class="nav-item flex flex-col items-center gap-1 transition-all">
             <i class="fas fa-user-plus text-xl"></i>
-            <span class="text-[10px]">Referrals</span>
+            <span class="text-[10px]" data-i18n="referrals">Referrals</span>
         </button>
         <button onclick="showPage('wallet-page', this)" class="nav-item flex flex-col items-center gap-1 transition-all">
             <i class="fas fa-wallet text-xl"></i>
-            <span class="text-[10px]">Withdraw</span>
+            <span class="text-[10px]" data-i18n="withdraw">Withdraw</span>
         </button>
     </nav>
 
@@ -195,6 +347,189 @@
     <div id="toast" class="toast hidden"></div>
 
     <script>
+        // ==================== Language System ====================
+        const translations = {
+            en: {
+                your_balance: 'Your balance',
+                channel_task: 'Channel Task',
+                subscribe_prompt: 'Subscribe to the channels and press confirm to get 0.01$ instantly!',
+                channel_1: 'Channel 1',
+                channel_2: 'Channel 2',
+                confirm_subscribe: 'Confirm subscription & get reward',
+                completting_tasks_gives: 'Completing all tasks gives you',
+                tasks_reset: 'Tasks reset every 24 hours',
+                tasks_progress: 'Tasks progress',
+                failed_load_tasks: 'Failed to load tasks',
+                try_again: 'Try again',
+                referral_system: 'Referral System',
+                referral_info: 'Get 0.01$ for each friend who completes 10 tasks',
+                invite_link: 'Your personal invite link',
+                total_referrals: 'Total referrals',
+                referral_earnings: 'Referral earnings',
+                withdrawable_balance: 'Withdrawable balance',
+                amount_placeholder: 'Amount (min 0.3)',
+                minimum: 'Minimum',
+                request_withdrawal: 'Request Withdrawal',
+                withdrawal_history: 'Withdrawal History',
+                tasks: 'Tasks',
+                referrals: 'Referrals',
+                withdraw: 'Withdraw',
+                task: 'Task',
+                watch_ads: 'Watch 3 ads',
+                completed: 'Completed',
+                hours_left: 'hours left',
+                watch_ad: 'Watch Ad',
+                confirm: 'Confirm',
+                no_withdrawals: 'No withdrawals yet',
+                pending: 'Pending',
+                completed_status: 'Completed',
+                rejected: 'Rejected',
+                congratulations: 'Congratulations! You completed all tasks',
+                tasks_left: 'tasks left for reward',
+                verifying: 'Verifying...',
+                verify_success: '✅ Verified successfully! +0.01$ added to your balance',
+                verify_failed: '❌ Please subscribe to both channels first.',
+                task_completed_success: '✅ Task completed successfully',
+                all_tasks_completed_bonus: '🎉 Congratulations! You completed all tasks and earned a 0.01$ bonus!',
+                copy_success: '📋 Link copied',
+                min_withdrawal_error: '❌ Minimum withdrawal is 0.3 USDT',
+                invalid_binance_id: '❌ Please enter a valid Binance Pay ID',
+                withdrawal_success: 'Your withdrawal request has been sent successfully',
+                server_error: 'Server connection error',
+                processing: 'Processing...',
+                ad: 'Ad'
+            },
+            ar: {
+                your_balance: 'رصيدك',
+                channel_task: 'مهمة القنوات',
+                subscribe_prompt: 'اشترك في القنوات واضغط تأكيد لتحصل على 0.01$ فوراً!',
+                channel_1: 'القناة 1',
+                channel_2: 'القناة 2',
+                confirm_subscribe: 'تأكيد الاشتراك والحصول على المكافأة',
+                completting_tasks_gives: 'إكمال جميع المهام يمنحك',
+                tasks_reset: 'تتجدد المهام كل 24 ساعة',
+                tasks_progress: 'تقدم المهام',
+                failed_load_tasks: 'فشل تحميل المهام',
+                try_again: 'حاول مرة أخرى',
+                referral_system: 'نظام الإحالة',
+                referral_info: 'احصل على 0.01$ عن كل صديق يكمل 10 مهام',
+                invite_link: 'رابط الدعوة الخاص بك',
+                total_referrals: 'إجمالي الإحالات',
+                referral_earnings: 'أرباح الإحالات',
+                withdrawable_balance: 'الرصيد القابل للسحب',
+                amount_placeholder: 'المبلغ (الحد الأدنى 0.3)',
+                minimum: 'الحد الأدنى',
+                request_withdrawal: 'طلب سحب',
+                withdrawal_history: 'سجل السحوبات',
+                tasks: 'المهام',
+                referrals: 'الإحالات',
+                withdraw: 'سحب',
+                task: 'مهمة',
+                watch_ads: 'شاهد 3 إعلانات',
+                completed: 'مكتمل',
+                hours_left: 'ساعة متبقية',
+                watch_ad: 'شاهد إعلان',
+                confirm: 'تأكيد',
+                no_withdrawals: 'لا توجد عمليات سحب بعد',
+                pending: 'قيد الانتظار',
+                completed_status: 'مكتمل',
+                rejected: 'مرفوض',
+                congratulations: 'تهانينا! لقد أكملت جميع المهام',
+                tasks_left: 'مهام متبقية للمكافأة',
+                verifying: 'جاري التحقق...',
+                verify_success: '✅ تم التحقق بنجاح! +0.01$ أضيفت إلى رصيدك',
+                verify_failed: '❌ الرجاء الاشتراك في القناتين أولاً',
+                task_completed_success: '✅ تم إكمال المهمة بنجاح',
+                all_tasks_completed_bonus: '🎉 تهانينا! لقد أكملت جميع المهام وحصلت على مكافأة 0.01$!',
+                copy_success: '📋 تم نسخ الرابط',
+                min_withdrawal_error: '❌ الحد الأدنى للسحب هو 0.3 USDT',
+                invalid_binance_id: '❌ الرجاء إدخال معرف Binance Pay صحيح',
+                withdrawal_success: 'تم إرسال طلب السحب بنجاح',
+                server_error: 'خطأ في الاتصال بالخادم',
+                processing: 'جاري المعالجة...',
+                ad: 'إعلان'
+            }
+        };
+
+        let currentLanguage = localStorage.getItem('adcash_language') || 'en';
+
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('adcash_language', lang);
+            
+            // Update body direction
+            if (lang === 'ar') {
+                document.body.classList.add('rtl');
+                document.body.setAttribute('dir', 'rtl');
+            } else {
+                document.body.classList.remove('rtl');
+                document.body.setAttribute('dir', 'ltr');
+            }
+            
+            // Update all i18n elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            
+            // Update placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (translations[lang] && translations[lang][key]) {
+                    el.placeholder = translations[lang][key];
+                }
+            });
+            
+            // Update language button text
+            document.getElementById('currentLangText').textContent = lang === 'en' ? 'EN' : 'عربي';
+            
+            // Update dropdown active state
+            document.getElementById('langEn').classList.remove('active');
+            document.getElementById('langAr').classList.remove('active');
+            document.getElementById(`lang${lang === 'en' ? 'En' : 'Ar'}`).classList.add('active');
+            
+            // Hide/show checkmarks
+            document.querySelector('#langEn .fa-check').style.display = lang === 'en' ? 'inline-block' : 'none';
+            document.querySelector('#langAr .fa-check').style.display = lang === 'ar' ? 'inline-block' : 'none';
+            
+            // Close dropdown
+            document.getElementById('langDropdown').classList.remove('show');
+            
+            // Re-render tasks to update button texts
+            if (userTasksStatus && userTasksStatus.length > 0) {
+                renderTasks();
+            }
+            
+            // Re-render withdrawals history
+            const withdrawalsContainer = document.getElementById('withdrawals-history');
+            if (withdrawalsContainer && withdrawalsContainer.children.length > 0) {
+                const withdrawals = JSON.parse(withdrawalsContainer.getAttribute('data-withdrawals') || '[]');
+                renderWithdrawalsHistory(withdrawals);
+            }
+        }
+
+        function toggleLangDropdown() {
+            const dropdown = document.getElementById('langDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const wrapper = document.querySelector('.lang-switch-wrapper');
+            const dropdown = document.getElementById('langDropdown');
+            if (wrapper && !wrapper.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        function t(key) {
+            return translations[currentLanguage] && translations[currentLanguage][key] ? 
+                   translations[currentLanguage][key] : key;
+        }
+
+        // ==================== Original App Logic ====================
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
@@ -262,13 +597,17 @@
                 document.getElementById('progress-section').classList.remove('hidden');
                 document.getElementById('tasks-progress').innerText = `${completedTasks}/10`;
                 document.getElementById('progress-bar').style.width = `${(completedTasks / 10) * 100}%`;
-                document.getElementById('progress-message').innerText = completedTasks === 10 ? 
-                    'Congratulations! You completed all tasks' : 
-                    `${10-completedTasks} tasks left for reward`;
+                const msgElement = document.getElementById('progress-message');
+                msgElement.innerText = completedTasks === 10 ? 
+                    t('congratulations') : 
+                    `${10-completedTasks} ${t('tasks_left')}`;
             }
             
             renderTasks();
             renderWithdrawalsHistory(data.withdrawals || []);
+            
+            // Apply language after UI update
+            switchLanguage(currentLanguage);
         }
 
         function renderTasks() {
@@ -284,7 +623,7 @@
                 let timeLeft = '';
                 if (cooldownUntil && cooldownUntil > now) {
                     const hoursLeft = Math.ceil((cooldownUntil - now) / (1000 * 60 * 60));
-                    timeLeft = `<span class="text-xs text-slate-500">(${hoursLeft} hours left)</span>`;
+                    timeLeft = `<span class="text-xs text-slate-500">(${hoursLeft} ${t('hours_left')})</span>`;
                 }
                 
                 const card = document.createElement('div');
@@ -295,22 +634,22 @@
                     actionBtn = `
                         <div class="text-right">
                             <span class="text-green-400 text-sm flex items-center">
-                                <i class="fas fa-check-circle ml-1"></i>Completed
+                                <i class="fas fa-check-circle ml-1"></i>${t('completed')}
                             </span>
                             ${timeLeft}
                         </div>
                     `;
                 } else {
                     const isProcessing = currentAdProgress.taskId === i;
-                    let btnLabel = isProcessing ? (currentAdProgress.count >= 3 ? 'Confirm ✅' : `Ad ${currentAdProgress.count}/3`) : 'Watch Ad';
+                    let btnLabel = isProcessing ? (currentAdProgress.count >= 3 ? `${t('confirm')} ✅` : `${t('ad')} ${currentAdProgress.count}/3`) : t('watch_ad');
                     let btnClass = isProcessing && currentAdProgress.count >= 3 ? 'bg-yellow-500 text-black pulse' : 'bg-indigo-600';
                     actionBtn = `<button onclick="handleTaskClick(${i})" class="${btnClass} px-4 py-2 rounded-lg text-xs font-bold transition-all hover:opacity-90">${btnLabel}</button>`;
                 }
 
                 card.innerHTML = `
                     <div>
-                        <p class="text-sm font-bold">Task ${i}</p>
-                        <p class="text-[10px] text-slate-400">Watch 3 ads</p>
+                        <p class="text-sm font-bold">${t('task')} ${i}</p>
+                        <p class="text-[10px] text-slate-400">${t('watch_ads')}</p>
                     </div>
                     ${actionBtn}
                 `;
@@ -329,7 +668,7 @@
                     const data = await response.json();
                     if (data.success) {
                         currentAdProgress = { taskId: null, count: 0 };
-                        showToast("✅ Task completed successfully", "success");
+                        showToast(t('task_completed_success'), "success");
                         refreshUserData();
                     }
                 } catch (error) {
@@ -356,7 +695,7 @@
         async function verifySubscription() {
             const btn = document.getElementById('verify-btn');
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${t('verifying')}`;
             btn.disabled = true;
             
             try {
@@ -370,7 +709,7 @@
                 showToast(result.message, result.success ? 'success' : 'error');
                 if (result.success) refreshUserData();
             } catch (e) { 
-                showToast("Server connection error", "error");
+                showToast(t('server_error'), "error");
             }
             
             btn.innerHTML = originalText;
@@ -383,16 +722,16 @@
             const btn = document.getElementById('withdraw-btn');
             
             if (!amount || amount < 0.3) {
-                 showToast("❌ Minimum withdrawal is 0.3 USDT");
+                 showToast(t('min_withdrawal_error'));
                 return;
             }
             
             if (!binancePayId || binancePayId.length < 5) {
-                 showToast(`❌ Please enter a valid Binance Pay ID`);
+                 showToast(t('invalid_binance_id'));
                 return;
             }
             
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${t('processing')}`;
             btn.disabled = true;
             
             try {
@@ -416,10 +755,10 @@
                     refreshUserData();
                 }
             } catch (e) {
-                showToast("Server connection error", "error");
+                showToast(t('server_error'), "error");
             }
             
-            btn.innerHTML = 'Request Withdrawal';
+            btn.innerHTML = t('request_withdrawal');
             btn.disabled = false;
         }
 
@@ -447,13 +786,17 @@
             const link = document.getElementById('ref-link');
             link.select();
             navigator.clipboard.writeText(link.value);
-            showToast("📋 Link copied", "success");
+            showToast(t('copy_success'), "success");
         }
 
         function renderWithdrawalsHistory(withdrawals) {
             const container = document.getElementById('withdrawals-history');
+            
+            // Store withdrawals data for language switching
+            container.setAttribute('data-withdrawals', JSON.stringify(withdrawals));
+            
             if (!withdrawals || withdrawals.length === 0) {
-                container.innerHTML = '<p class="text-center text-slate-500 py-4">No withdrawals yet</p>';
+                container.innerHTML = `<p class="text-center text-slate-500 py-4">${t('no_withdrawals')}</p>`;
                 return;
             }
             
@@ -464,15 +807,15 @@
                 switch(w.status) {
                     case 'pending':
                         statusClass = 'text-yellow-400';
-                        statusText = 'Pending';
+                        statusText = t('pending');
                         break;
                     case 'completed':
                         statusClass = 'text-green-400';
-                        statusText = 'Completed';
+                        statusText = t('completed_status');
                         break;
                     case 'rejected':
                         statusClass = 'text-red-400';
-                        statusText = 'Rejected';
+                        statusText = t('rejected');
                         break;
                 }
                 
@@ -480,7 +823,7 @@
                     <div class="bg-slate-800/50 p-3 rounded-lg flex justify-between items-center text-xs">
                         <div>
                             <p class="font-bold text-yellow-400">${Number(w.amount).toFixed(2)} USDT</p>
-                            <p class="text-slate-500">${new Date(w.created_at).toLocaleDateString('en-GB')}</p>
+                            <p class="text-slate-500">${new Date(w.created_at).toLocaleDateString(currentLanguage === 'ar' ? 'ar-EG' : 'en-GB')}</p>
                         </div>
                         <span class="${statusClass}">${statusText}</span>
                     </div>
@@ -490,6 +833,9 @@
 
         // Start app
         init();
+        
+        // Apply initial language
+        switchLanguage(currentLanguage);
         
         // Refresh every 30 seconds
         refreshInterval = setInterval(refreshUserData, 30000);
@@ -501,8 +847,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
